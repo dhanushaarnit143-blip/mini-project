@@ -1,0 +1,25 @@
+pyyaml
+pytest
+pytest-cov
+numpy
+pandas
+scikit-learn
+joblib
+tqdm
+
+# Phase 3 voice
+# librosa
+# soundfile
+# parselmouth
+
+# Phase 4 motor
+# scipy
+
+# Phase 5 retina
+# torch
+# torchvision
+# opencv-python
+# segmentation-models-pytorch
+
+# Explainability
+# shap

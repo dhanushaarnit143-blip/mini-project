@@ -1,0 +1,36 @@
+project:
+  name: "MPF-PD"
+  version: "0.1.0"
+  seed: 42
+  environment: "development"
+
+paths:
+  data_raw: "data/raw"
+  data_interim: "data/interim"
+  data_processed: "data/processed"
+  data_external: "data/external"
+  data_metadata: "data/metadata"
+  models: "models"
+  evaluation: "evaluation"
+  logs: "logs"
+
+logging:
+  level: "INFO"
+  file: "logs/mpf.log"
+  console: true
+
+claims:
+  clinical_diagnosis: false
+  research_prototype: true
+  novelty_statement: >
+    Investigational multimodal fusion of retinal and prodromal digital/clinical biomarkers
+    for Parkinson's risk screening. Not a diagnostic system.
+
+phase_status:
+  phase0: true
+  phase1: false
+  phase2: false
+  phase3: false
+  phase4: false
+  phase5: false
+  phase6: false
