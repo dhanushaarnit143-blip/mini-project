@@ -1,24 +1,101 @@
+# ─── Python standard ignores ───────────────────────────────────────────────
 __pycache__/
 *.pyc
 *.pyo
+*.pyd
+*.egg-info/
 .venv/
 venv/
 .env
+.ipynb_checkpoints/
+.pytest_cache/
+
+# ─── Logs ──────────────────────────────────────────────────────────────────
 logs/
+*.log
+
+# ─── MPF-PD: RESTRICTED DATASETS (Category A, B, D — never commit raw data) ─
+# PPMI Data (requires signed DUA — never commit)
+data/raw/ppmi/
+data/interim/ppmi/
+data/processed/ppmi/
+
+# UCI Voice Dataset (WAV files would exceed 100 MB GitHub limit)
+data/raw/uci_voice/
+# Exception: README.md in uci_voice is safe to commit
+!data/raw/uci_voice/README.md
+
+# PhysioNet Gait (large ASCII sensor logs)
+data/raw/physionet_gait/
+
+# mPower mobile dataset (restricted Synapse governance)
+data/raw/mpower/
+
+# Fundus/OCT/Retinal imaging (high-res RGB/B-scans — multi-GB)
+data/raw/fundus/
+data/raw/oct/
+data/external/
+
+# Wearable/actigraphy sensor logs
+data/raw/wearable/
+
+# All other raw, interim, processed data
 data/raw/
 data/interim/
 data/processed/
-data/external/
+
+# ─── MPF-PD: MODEL WEIGHTS & LARGE BINARY ARTIFACTS ───────────────────────
+# PyTorch weights (ResNet, EfficientNet, U-Net, GMU fusion)
+models/**/*.pth
+models/**/*.pt
+
+# scikit-learn / XGBoost serialized pipelines (binary, can be large)
 models/**/*.joblib
 models/**/*.pkl
-models/**/*.pt
-models/**/*.pth
-evaluation/**/*.json
-.ipynb_checkpoints/
-.pytest_cache/
-*.egg-info/
 
+# HDF5 / NumPy arrays (potential embedding caches)
+*.h5
+*.hdf5
+*.npy
+*.npz
+
+# ─── ALLOWED: model metadata JSONs are small text — commit these ────────────
+!models/**/metadata.json
+
+# ─── Medical image formats (safety net) ────────────────────────────────────
+*.dcm
+*.nii
+*.nii.gz
+*.mgh
+*.mgz
+
+# ─── Audio files (safety net — uci_voice has no raw audio, but guard anyway) ─
+*.wav
+*.mp3
+*.flac
+*.m4a
+*.ogg
+*.aac
+
+# ─── DVC artifacts (pointer files ARE committed; data directories are not) ──
+# .dvc files and .dvcignore are committed; large data is tracked via DVC
+# (DVC not yet initialized in this project — tracked for future phases)
+
+# ─── Evaluation JSONs: these ARE committed (small text result files) ────────
+# (no ignore rule — evaluation/*.json is tracked by git)
+
+# ─── OS / IDE artifacts ────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+.idea/
+.vscode/
+
+# ─── Allowed explicit overrides ─────────────────────────────────────────────
 !data/metadata/
+!data/DATASETS.md
+!data/raw/uci_voice/README.md
 !README.md
 !config.yaml
 !requirements.txt

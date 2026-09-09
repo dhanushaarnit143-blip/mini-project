@@ -1,0 +1,85 @@
+{
+  "modality": "rbd",
+  "model_type": "logistic_regression",
+  "dataset_id": "synthetic_fixture",
+  "dataset_category": "E",
+  "features_used": [
+    "rbdsq_total",
+    "above_cutoff_flag",
+    "high_weight_item_flags",
+    "item_1",
+    "item_2",
+    "item_3",
+    "item_4",
+    "item_5",
+    "item_6",
+    "item_7",
+    "item_8",
+    "item_9",
+    "item_10",
+    "item_11",
+    "item_12",
+    "item_13"
+  ],
+  "target_label": "diagnosis",
+  "training_samples": 210,
+  "validation_samples": 45,
+  "test_samples": 45,
+  "metrics": {
+    "validation": {
+      "accuracy": 0.9778,
+      "precision": 0.9583,
+      "recall": 1.0,
+      "f1": 0.9787,
+      "roc_auc": 1.0,
+      "confusion_matrix": [
+        [
+          21,
+          1
+        ],
+        [
+          0,
+          23
+        ]
+      ],
+      "number_of_samples": 45,
+      "number_of_participants": 45,
+      "class_balance": {
+        "class_0": 22,
+        "class_1": 23
+      }
+    },
+    "test": {
+      "accuracy": 0.9778,
+      "precision": 1.0,
+      "recall": 0.9565,
+      "f1": 0.9778,
+      "roc_auc": 1.0,
+      "confusion_matrix": [
+        [
+          22,
+          0
+        ],
+        [
+          1,
+          22
+        ]
+      ],
+      "number_of_samples": 45,
+      "number_of_participants": 45,
+      "class_balance": {
+        "class_0": 22,
+        "class_1": 23
+      }
+    },
+    "cv_roc_auc_mean": 0.9959
+  },
+  "seed": 42,
+  "timestamp": "2026-09-09T10:02:56.194772+00:00",
+  "limitations": [
+    "Age-adjusted RBD risk norms are not published for standard RBDSQ scale; age_adjusted_rbd_risk omitted to avoid fabrication.",
+    "If only a subset of RBDSQ items (1-13) is available, item_subscores uses available items and documents missingness.",
+    "Real RBD data unavailable locally; evaluation generated using synthetic fixture in simulation mode."
+  ],
+  "clinical_claim": false
+}

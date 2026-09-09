@@ -6,11 +6,13 @@ pandas
 scikit-learn
 joblib
 tqdm
+xgboost
 
 # Phase 3 voice
-# librosa
-# soundfile
-# parselmouth
+librosa
+soundfile
+# parselmouth  # optional: enables Praat jitter/shimmer/HNR from raw audio files
+               # Install: python -m pip install parselmouth
 
 # Phase 4 motor
 # scipy

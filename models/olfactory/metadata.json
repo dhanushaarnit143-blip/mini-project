@@ -1,0 +1,74 @@
+{
+  "modality": "olfactory",
+  "model_type": "random_forest",
+  "dataset_id": "synthetic_fixture",
+  "dataset_category": "E",
+  "features_used": [
+    "total_score",
+    "pct_correct",
+    "response_time_mean",
+    "n_errors",
+    "error_pattern_flags"
+  ],
+  "target_label": "diagnosis",
+  "training_samples": 210,
+  "validation_samples": 45,
+  "test_samples": 45,
+  "metrics": {
+    "validation": {
+      "accuracy": 0.9778,
+      "precision": 1.0,
+      "recall": 0.9565,
+      "f1": 0.9778,
+      "roc_auc": 1.0,
+      "confusion_matrix": [
+        [
+          22,
+          0
+        ],
+        [
+          1,
+          22
+        ]
+      ],
+      "number_of_samples": 45,
+      "number_of_participants": 45,
+      "class_balance": {
+        "class_0": 22,
+        "class_1": 23
+      }
+    },
+    "test": {
+      "accuracy": 0.9556,
+      "precision": 1.0,
+      "recall": 0.913,
+      "f1": 0.9545,
+      "roc_auc": 1.0,
+      "confusion_matrix": [
+        [
+          22,
+          0
+        ],
+        [
+          2,
+          21
+        ]
+      ],
+      "number_of_samples": 45,
+      "number_of_participants": 45,
+      "class_balance": {
+        "class_0": 22,
+        "class_1": 23
+      }
+    },
+    "cv_roc_auc_mean": 0.9991
+  },
+  "seed": 42,
+  "timestamp": "2026-09-09T10:02:54.906141+00:00",
+  "limitations": [
+    "Age-adjusted normative tables (e.g., Doty UPSIT age/sex percentiles) are not available in public tabular export without proprietary tables; age_adjusted_score omitted to prevent data fabrication.",
+    "If raw item-level responses (1-40) are absent, error_pattern_flags represents a summary flag of high-risk odor errors.",
+    "Real olfactory data unavailable locally; evaluation generated using synthetic fixture in simulation mode."
+  ],
+  "clinical_claim": false
+}

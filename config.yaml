@@ -29,8 +29,8 @@ claims:
 phase_status:
   phase0: true
   phase1: false
-  phase2: false
-  phase3: false
+  phase2: true
+  phase3: true
   phase4: false
   phase5: false
   phase6: false

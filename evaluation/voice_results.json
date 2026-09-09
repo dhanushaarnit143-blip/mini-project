@@ -1,0 +1,275 @@
+{
+  "phase": 3,
+  "modality": "voice",
+  "dataset_id": "synthetic_fixture",
+  "dataset_category": "E",
+  "experiment_type": "simulation",
+  "models_compared": [
+    "logistic_regression",
+    "svm",
+    "random_forest",
+    "xgboost"
+  ],
+  "best_model": "logistic_regression",
+  "metrics": {
+    "logistic_regression": {
+      "validation": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            15,
+            0
+          ],
+          [
+            0,
+            16
+          ]
+        ],
+        "number_of_samples": 31,
+        "number_of_recordings": 31,
+        "number_of_participants": 31,
+        "class_balance": {
+          "class_0": 15,
+          "class_1": 16
+        }
+      },
+      "test": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            15,
+            0
+          ],
+          [
+            0,
+            15
+          ]
+        ],
+        "number_of_samples": 30,
+        "number_of_recordings": 30,
+        "number_of_participants": 30,
+        "class_balance": {
+          "class_0": 15,
+          "class_1": 15
+        }
+      },
+      "cv_roc_auc_mean": 1.0
+    },
+    "svm": {
+      "validation": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            15,
+            0
+          ],
+          [
+            0,
+            16
+          ]
+        ],
+        "number_of_samples": 31,
+        "number_of_recordings": 31,
+        "number_of_participants": 31,
+        "class_balance": {
+          "class_0": 15,
+          "class_1": 16
+        }
+      },
+      "test": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            15,
+            0
+          ],
+          [
+            0,
+            15
+          ]
+        ],
+        "number_of_samples": 30,
+        "number_of_recordings": 30,
+        "number_of_participants": 30,
+        "class_balance": {
+          "class_0": 15,
+          "class_1": 15
+        }
+      },
+      "cv_roc_auc_mean": 1.0
+    },
+    "random_forest": {
+      "validation": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            15,
+            0
+          ],
+          [
+            0,
+            16
+          ]
+        ],
+        "number_of_samples": 31,
+        "number_of_recordings": 31,
+        "number_of_participants": 31,
+        "class_balance": {
+          "class_0": 15,
+          "class_1": 16
+        }
+      },
+      "test": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            15,
+            0
+          ],
+          [
+            0,
+            15
+          ]
+        ],
+        "number_of_samples": 30,
+        "number_of_recordings": 30,
+        "number_of_participants": 30,
+        "class_balance": {
+          "class_0": 15,
+          "class_1": 15
+        }
+      },
+      "cv_roc_auc_mean": 1.0
+    },
+    "xgboost": {
+      "validation": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            15,
+            0
+          ],
+          [
+            0,
+            16
+          ]
+        ],
+        "number_of_samples": 31,
+        "number_of_recordings": 31,
+        "number_of_participants": 31,
+        "class_balance": {
+          "class_0": 15,
+          "class_1": 16
+        }
+      },
+      "test": {
+        "accuracy": 0.9333,
+        "precision": 1.0,
+        "recall": 0.8667,
+        "f1": 0.9286,
+        "roc_auc": 0.9333,
+        "confusion_matrix": [
+          [
+            15,
+            0
+          ],
+          [
+            2,
+            13
+          ]
+        ],
+        "number_of_samples": 30,
+        "number_of_recordings": 30,
+        "number_of_participants": 30,
+        "class_balance": {
+          "class_0": 15,
+          "class_1": 15
+        }
+      },
+      "cv_roc_auc_mean": 0.9857
+    }
+  },
+  "features_used": [
+    "jitter_pct",
+    "jitter_abs",
+    "jitter_rap",
+    "jitter_ppq5",
+    "jitter_ddp",
+    "shimmer",
+    "shimmer_db",
+    "shimmer_apq3",
+    "shimmer_apq5",
+    "shimmer_apq11",
+    "shimmer_dda",
+    "nhr",
+    "hnr",
+    "rpde",
+    "dfa",
+    "ppe"
+  ],
+  "quality_checks": {
+    "note": "Audio quality checks apply to raw audio files. UCI uci_voice provides pre-extracted features (no raw audio). Quality checks for tabular data: missing value ratios checked per feature.",
+    "missing_value_ratios": {
+      "jitter_pct": 0.0,
+      "jitter_abs": 0.0,
+      "jitter_rap": 0.0,
+      "jitter_ppq5": 0.0,
+      "jitter_ddp": 0.0,
+      "shimmer": 0.0,
+      "shimmer_db": 0.0,
+      "shimmer_apq3": 0.0,
+      "shimmer_apq5": 0.0,
+      "shimmer_apq11": 0.0,
+      "shimmer_dda": 0.0,
+      "nhr": 0.0,
+      "hnr": 0.0,
+      "rpde": 0.0,
+      "dfa": 0.0,
+      "ppe": 0.0
+    }
+  },
+  "limitations": [
+    "SIMULATION MODE: Real UCI voice data not found locally. All metrics computed on SYNTHETIC FIXTURE data (Category E). These metrics have ZERO clinical validity.",
+    "UCI Parkinson's Telemonitoring dataset (uci_voice) has NO healthy controls (all 42 participants are PD patients with longitudinal UPDRS scores). Binary classification is binarized UPDRS severity rather than PD vs. healthy control.",
+    "Jitter/shimmer/HNR extracted from UCI CSV (precomputed by original authors) using Praat tools. These are not re-computed here to avoid introducing toolchain discrepancies.",
+    "Parselmouth/Praat jitter-shimmer extraction from raw waveform is only attempted when parselmouth is installed; otherwise feature columns are set to NaN.",
+    "Spectral features (MFCCs etc.) are computed only when raw audio files are provided. The UCI dataset ships as a precomputed feature CSV \u2014 no raw audio files are distributed.",
+    "Voice alone is unlikely to be a novel biomarker for PD; contribution is as a component in multimodal fusion (Phase 6).",
+    "No clinical claims: all risk scores are research prototype estimates.",
+    "Completely synthetic \u2014 ZERO physiological or clinical reality.",
+    "Used ONLY for software testing and CI/CD.",
+    "Results in simulation mode must NOT be reported as clinical findings."
+  ],
+  "artifact_paths": {
+    "model_path": "models\\voice\\model.joblib",
+    "metadata_path": "models\\voice\\metadata.json"
+  }
+}
