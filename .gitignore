@@ -60,6 +60,7 @@ models/**/*.pkl
 *.npz
 
 # ─── ALLOWED: model metadata JSONs are small text — commit these ────────────
+models/**/*.png
 !models/**/metadata.json
 
 # ─── Medical image formats (safety net) ────────────────────────────────────

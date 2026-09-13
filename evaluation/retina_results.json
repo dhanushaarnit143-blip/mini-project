@@ -1,0 +1,88 @@
+{
+  "phase": 5,
+  "modality": "retina",
+  "dataset_id": "synthetic_fixture",
+  "dataset_type": "simulation",
+  "experiment_type": "prototype",
+  "image_quality": {
+    "total_evaluated_images": 3,
+    "passed_qc_count": 1,
+    "failed_qc_count": 2,
+    "pass_rate": 0.3333,
+    "common_issues_flagged": {
+      "Image blurred or out of focus: Laplacian variance 1.2 < 20.0": 1,
+      "Uniform/blank image (all pixels = 0.0)": 1
+    }
+  },
+  "segmentation": {
+    "methods_benchmarked": [
+      "classical_morphological_heuristic",
+      "unet_deep_learning"
+    ],
+    "primary_method_used": "classical_morphological_heuristic",
+    "heuristic_notice": "Baseline heuristic vessel filter; not a clinically certified segmentation network.",
+    "classical_vessel_density": 0.0724,
+    "classical_vessel_pixel_count": 2749,
+    "unet_vessel_pixel_count": 37976,
+    "fov_pixel_count": 37976
+  },
+  "vessel_features": [
+    "vessel_density",
+    "mean_vessel_diameter_px",
+    "vessel_tortuosity_index",
+    "branch_count",
+    "branch_point_density",
+    "endpoint_count",
+    "peripapillary_vessel_density",
+    "peripapillary_branch_count",
+    "macular_vessel_density",
+    "foveal_avascular_zone_area_px",
+    "optic_disc_detected",
+    "macula_detected"
+  ],
+  "vessel_feature_sample_values": {
+    "vessel_density": 0.07239,
+    "mean_vessel_diameter_px": 3.243,
+    "vessel_tortuosity_index": 1.0,
+    "branch_count": 179,
+    "branch_point_density": 4.7135,
+    "endpoint_count": 138,
+    "peripapillary_vessel_density": 0.08352,
+    "peripapillary_branch_count": 119,
+    "macular_vessel_density": 0.20282,
+    "foveal_avascular_zone_area_px": 577.0,
+    "optic_disc_detected": true,
+    "macula_detected": true
+  },
+  "encoder": {
+    "backbone": "resnet18",
+    "embedding_dim": 128,
+    "pretrained": false,
+    "pd_trained": false,
+    "sample_embedding_norm": 11.3136,
+    "sample_embedding_mean": -0.0,
+    "sample_embedding_std": 1.0
+  },
+  "metrics": {
+    "validation_status": "pipeline_interface_verified",
+    "pd_clinical_validation_available": false,
+    "qc_pass_rate_test_fixtures": 0.3333,
+    "vessel_extraction_success": true,
+    "embedding_extraction_success": true,
+    "note": "No PD classification metrics reported because no Parkinson's-specific retinal labels exist locally."
+  },
+  "limitations": [
+    "PROTOTYPE / SIMULATION: Real Parkinson's-specific retinal dataset is not available locally. No PD metrics are fabricated.",
+    "Pretraining datasets (EyePACS, Messidor-2, DRIVE) contain diabetic retinopathy or normal eye images, NOT Parkinson's labels.",
+    "OCT datasets (OCT500) contain ocular pathology labels, NOT Parkinson's disease labels.",
+    "Vessel segmentation baseline uses a classical morphological heuristic without learned supervised weights.",
+    "Retinal embeddings and vascular morphometry serve as prototype representations for multimodal fusion.",
+    "Zero clinical validity for Parkinson's diagnosis or screening without prospective clinical cohort validation.",
+    "No clinical claims: outputs are research prototype representations only."
+  ],
+  "artifact_paths": {
+    "model_metadata_path": "models\\retina\\metadata.json",
+    "results_json_path": "evaluation\\retina_results.json",
+    "fixture_path": "models\\retina\\synthetic_fundus_fixture.png"
+  }
+}

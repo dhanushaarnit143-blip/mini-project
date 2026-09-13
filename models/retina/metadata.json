@@ -1,0 +1,60 @@
+{
+  "modality": "retina",
+  "phase": 5,
+  "model_type": "RetinalCNNEncoder_and_VascularMorphometry",
+  "backbone": "resnet18",
+  "embedding_dim": 128,
+  "pretrained": false,
+  "pd_trained": false,
+  "clinical_claim": false,
+  "experiment_type": "prototype",
+  "dataset_category": "E",
+  "segmentation_method": "classical_morphological_heuristic",
+  "vessel_features_extracted": [
+    "vessel_density",
+    "mean_vessel_diameter_px",
+    "vessel_tortuosity_index",
+    "branch_count",
+    "branch_point_density",
+    "endpoint_count",
+    "peripapillary_vessel_density",
+    "peripapillary_branch_count",
+    "macular_vessel_density",
+    "foveal_avascular_zone_area_px",
+    "optic_disc_detected",
+    "macula_detected"
+  ],
+  "reference_biomarkers_synthetic_fixture": {
+    "vessel_density": 0.07239,
+    "mean_vessel_diameter_px": 3.243,
+    "vessel_tortuosity_index": 1.0,
+    "branch_count": 179,
+    "branch_point_density": 4.7135,
+    "endpoint_count": 138,
+    "peripapillary_vessel_density": 0.08352,
+    "peripapillary_branch_count": 119,
+    "macular_vessel_density": 0.20282,
+    "foveal_avascular_zone_area_px": 577.0,
+    "optic_disc_detected": true,
+    "macula_detected": true
+  },
+  "sample_embedding_stats": {
+    "dim": 128,
+    "l2_norm": 11.3137,
+    "mean": 0.0,
+    "std": 1.0
+  },
+  "limitations": [
+    "PROTOTYPE MODE: No Parkinson's-specific retinal dataset with clinical labels is available locally or openly.",
+    "Generic fundus pretraining datasets (EyePACS, Messidor-2, DRIVE) contain diabetic retinopathy or normal images, NOT Parkinson's labels.",
+    "OCT datasets (OCT500) contain ophthalmic disease labels, NOT Parkinson's disease labels.",
+    "Vessel segmentation utilizes a deterministic classical morphological heuristic baseline; it is not a clinically validated AI diagnostic device.",
+    "Retinal embeddings and vascular features serve as prototype representations for downstream multimodal fusion.",
+    "Zero clinical validity for Parkinson's diagnosis or screening without prospective clinical validation.",
+    "No clinical claims are made: all risk scores and embeddings are research prototype outputs only."
+  ],
+  "artifact_paths": {
+    "metadata_path": "models\\retina\\metadata.json",
+    "fixture_image_path": "models\\retina\\synthetic_fundus_fixture.png"
+  }
+}

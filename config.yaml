@@ -32,5 +32,5 @@ phase_status:
   phase2: true
   phase3: true
   phase4: true
-  phase5: false
+  phase5: true
   phase6: false

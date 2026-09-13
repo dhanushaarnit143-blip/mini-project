@@ -15,12 +15,12 @@ soundfile
                # Install: python -m pip install parselmouth
 
 # Phase 4 motor
-# scipy
+scipy
 
 # Phase 5 retina
-# torch
-# torchvision
-# opencv-python
+torch
+torchvision
+opencv-python
 # segmentation-models-pytorch
 
 # Explainability
