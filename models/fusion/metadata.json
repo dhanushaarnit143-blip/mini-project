@@ -1,0 +1,76 @@
+{
+  "model_type": "gated_multimodal_fusion",
+  "modalities": [
+    "olfactory",
+    "rbd",
+    "voice",
+    "motor",
+    "retina"
+  ],
+  "embedding_dim": 32,
+  "fusion_mechanism": "gated_attention",
+  "missing_modality_strategy": "learnable_token",
+  "training_dataset": "synthetic_fixture",
+  "experiment_type": "prototype_simulation",
+  "seed": 42,
+  "metrics": {
+    "validation": {
+      "accuracy": 0.9808,
+      "precision": 1.0,
+      "recall": 0.963,
+      "f1": 0.9811,
+      "roc_auc": 1.0,
+      "confusion_matrix": [
+        [
+          25,
+          0
+        ],
+        [
+          1,
+          26
+        ]
+      ],
+      "number_of_samples": 52,
+      "class_balance": {
+        "class_0": 25,
+        "class_1": 27
+      }
+    },
+    "test": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "roc_auc": 1.0,
+      "confusion_matrix": [
+        [
+          26,
+          0
+        ],
+        [
+          0,
+          27
+        ]
+      ],
+      "number_of_samples": 53,
+      "class_balance": {
+        "class_0": 26,
+        "class_1": 27
+      }
+    }
+  },
+  "limitations": [
+    "PROTOTYPE SIMULATION MODE: True same-participant multimodal data across all 5 modalities is unavailable locally.",
+    "Trained on synthetic aligned multimodal fixture (Category E); metrics have ZERO clinical validity.",
+    "Not a clinical diagnostic device. Risk scores are research prototype estimates only.",
+    "Cross-modality interactions reflect simulated physiological correlations, not prospective patient cohorts."
+  ],
+  "clinical_claim": false,
+  "average_gate_weights": {
+    "olfactory": 0.2439,
+    "rbd": 0.1802,
+    "voice": 0.1925,
+    "motor": 0.2211,
+    "retina": 0.1623
+  }
+}
