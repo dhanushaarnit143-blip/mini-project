@@ -1,0 +1,100 @@
+{
+  "modality": "motor",
+  "model_type": "logistic_regression",
+  "dataset_id": "synthetic_fixture",
+  "dataset_category": "E",
+  "experiment_type": "simulation",
+  "raw_sensor_processing_used": false,
+  "tasks_used": [
+    "walking_gait"
+  ],
+  "features_used": [
+    "gait_speed_m_per_s",
+    "cadence_steps_per_min",
+    "stride_interval_mean_s",
+    "stride_interval_cv_pct",
+    "step_regularity",
+    "symmetry_index_pct",
+    "accel_variance",
+    "stance_swing_ratio"
+  ],
+  "target_label": "diagnosis",
+  "label_mapping": {
+    "0": "Control",
+    "1": "PD"
+  },
+  "training_participants": 139,
+  "validation_participants": 31,
+  "test_participants": 30,
+  "training_recordings": 139,
+  "validation_recordings": 31,
+  "test_recordings": 30,
+  "metrics": {
+    "validation": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "roc_auc": 1.0,
+      "confusion_matrix": [
+        [
+          16,
+          0
+        ],
+        [
+          0,
+          15
+        ]
+      ],
+      "number_of_samples": 31,
+      "number_of_participants": 31,
+      "number_of_recordings": 31,
+      "class_balance": {
+        "class_0": 16,
+        "class_1": 15
+      },
+      "number_of_features": 8
+    },
+    "test": {
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1": 1.0,
+      "roc_auc": 1.0,
+      "confusion_matrix": [
+        [
+          15,
+          0
+        ],
+        [
+          0,
+          15
+        ]
+      ],
+      "number_of_samples": 30,
+      "number_of_participants": 30,
+      "number_of_recordings": 30,
+      "class_balance": {
+        "class_0": 15,
+        "class_1": 15
+      },
+      "number_of_features": 8
+    },
+    "cv_roc_auc_mean": 1.0
+  },
+  "seed": 42,
+  "timestamp": "2026-09-13T13:32:34.192093+00:00",
+  "limitations": [
+    "SIMULATION MODE: Real PhysioNet physionet_gait data not found locally. All metrics computed on SYNTHETIC FIXTURE data (Category E). These metrics have ZERO clinical validity.",
+    "physionet_gait (Category B) is the primary motor dataset. It provides VGRF force plate data at 100 Hz from 166 participants (93 PD, 73 Control).",
+    "Binary classification only (PD vs Control). No prodromal labels are available in physionet_gait. Motor features here characterise manifest PD gait changes, not necessarily prodromal motor signs.",
+    "Raw VGRF signal processing (step detection, stride segmentation) is supported when the physionet_gait .txt files are present locally. If not present, derived features or synthetic fixtures are used.",
+    "FFT tremor features are NOT extracted: physionet_gait provides ground force signals, not limb accelerometry. Tremor characterisation from VGRF would be scientifically invalid.",
+    "Finger tapping, spiral drawing, and IMU-based tremor features are NOT implemented because physionet_gait does not support these modalities.",
+    "Gait speed is estimated from stride timing and assumed stride length (0.72 m default) when direct speed measurement is not available.",
+    "Two-minute walking trial under controlled lab conditions. Ecological validity to real-world gait is limited.",
+    "All participants are manifest PD; this pipeline is not validated for prodromal detection. Clinical claims must not be made.",
+    "No clinical claims: all risk scores are research prototype estimates only."
+  ],
+  "clinical_claim": false
+}

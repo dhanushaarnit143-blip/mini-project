@@ -1,0 +1,207 @@
+{
+  "phase": 4,
+  "modality": "motor",
+  "dataset_id": "synthetic_fixture",
+  "dataset_category": "E",
+  "experiment_type": "simulation",
+  "raw_sensor_processing_used": false,
+  "tasks_used": [
+    "walking_gait"
+  ],
+  "models_compared": [
+    "logistic_regression",
+    "random_forest",
+    "xgboost"
+  ],
+  "best_model": "logistic_regression",
+  "metrics": {
+    "logistic_regression": {
+      "validation": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            16,
+            0
+          ],
+          [
+            0,
+            15
+          ]
+        ],
+        "number_of_samples": 31,
+        "number_of_participants": 31,
+        "number_of_recordings": 31,
+        "class_balance": {
+          "class_0": 16,
+          "class_1": 15
+        },
+        "number_of_features": 8
+      },
+      "test": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            15,
+            0
+          ],
+          [
+            0,
+            15
+          ]
+        ],
+        "number_of_samples": 30,
+        "number_of_participants": 30,
+        "number_of_recordings": 30,
+        "class_balance": {
+          "class_0": 15,
+          "class_1": 15
+        },
+        "number_of_features": 8
+      },
+      "cv_roc_auc_mean": 1.0,
+      "cv_roc_auc_std": 0.0
+    },
+    "random_forest": {
+      "validation": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            16,
+            0
+          ],
+          [
+            0,
+            15
+          ]
+        ],
+        "number_of_samples": 31,
+        "number_of_participants": 31,
+        "number_of_recordings": 31,
+        "class_balance": {
+          "class_0": 16,
+          "class_1": 15
+        },
+        "number_of_features": 8
+      },
+      "test": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            15,
+            0
+          ],
+          [
+            0,
+            15
+          ]
+        ],
+        "number_of_samples": 30,
+        "number_of_participants": 30,
+        "number_of_recordings": 30,
+        "class_balance": {
+          "class_0": 15,
+          "class_1": 15
+        },
+        "number_of_features": 8
+      },
+      "cv_roc_auc_mean": 1.0,
+      "cv_roc_auc_std": 0.0
+    },
+    "xgboost": {
+      "validation": {
+        "accuracy": 0.9677,
+        "precision": 1.0,
+        "recall": 0.9333,
+        "f1": 0.9655,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            16,
+            0
+          ],
+          [
+            1,
+            14
+          ]
+        ],
+        "number_of_samples": 31,
+        "number_of_participants": 31,
+        "number_of_recordings": 31,
+        "class_balance": {
+          "class_0": 16,
+          "class_1": 15
+        },
+        "number_of_features": 8
+      },
+      "test": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            15,
+            0
+          ],
+          [
+            0,
+            15
+          ]
+        ],
+        "number_of_samples": 30,
+        "number_of_participants": 30,
+        "number_of_recordings": 30,
+        "class_balance": {
+          "class_0": 15,
+          "class_1": 15
+        },
+        "number_of_features": 8
+      },
+      "cv_roc_auc_mean": 0.9969,
+      "cv_roc_auc_std": 0.0041
+    }
+  },
+  "features_used": [
+    "gait_speed_m_per_s",
+    "cadence_steps_per_min",
+    "stride_interval_mean_s",
+    "stride_interval_cv_pct",
+    "step_regularity",
+    "symmetry_index_pct",
+    "accel_variance",
+    "stance_swing_ratio"
+  ],
+  "limitations": [
+    "SIMULATION MODE: Real PhysioNet physionet_gait data not found locally. All metrics computed on SYNTHETIC FIXTURE data (Category E). These metrics have ZERO clinical validity.",
+    "physionet_gait (Category B) is the primary motor dataset. It provides VGRF force plate data at 100 Hz from 166 participants (93 PD, 73 Control).",
+    "Binary classification only (PD vs Control). No prodromal labels are available in physionet_gait. Motor features here characterise manifest PD gait changes, not necessarily prodromal motor signs.",
+    "Raw VGRF signal processing (step detection, stride segmentation) is supported when the physionet_gait .txt files are present locally. If not present, derived features or synthetic fixtures are used.",
+    "FFT tremor features are NOT extracted: physionet_gait provides ground force signals, not limb accelerometry. Tremor characterisation from VGRF would be scientifically invalid.",
+    "Finger tapping, spiral drawing, and IMU-based tremor features are NOT implemented because physionet_gait does not support these modalities.",
+    "Gait speed is estimated from stride timing and assumed stride length (0.72 m default) when direct speed measurement is not available.",
+    "Two-minute walking trial under controlled lab conditions. Ecological validity to real-world gait is limited.",
+    "All participants are manifest PD; this pipeline is not validated for prodromal detection. Clinical claims must not be made.",
+    "No clinical claims: all risk scores are research prototype estimates only."
+  ],
+  "artifact_paths": {
+    "model_path": "models\\motor\\model.joblib",
+    "metadata_path": "models\\motor\\metadata.json"
+  }
+}
