@@ -1,0 +1,813 @@
+{
+  "phase": 10,
+  "evaluation_timestamp": "2026-09-15T18:00:00Z",
+  "experiment_type": "prototype_simulation",
+  "clinical_claim": false,
+  "baseline_auc": 1.0,
+  "baseline_f1": 0.9811,
+  "scenarios": {
+    "all_5_modalities": {
+      "active_modalities": [
+        "olfactory",
+        "rbd",
+        "voice",
+        "motor",
+        "retina"
+      ],
+      "missing_modalities": [],
+      "metrics": {
+        "accuracy": 0.9811,
+        "precision": 1.0,
+        "recall": 0.963,
+        "f1": 0.9811,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            1,
+            26
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.20080000162124634,
+        "rbd": 0.19840000569820404,
+        "voice": 0.20200000703334808,
+        "motor": 0.20399999618530273,
+        "retina": 0.19470000267028809
+      }
+    },
+    "missing_olfactory": {
+      "active_modalities": [
+        "rbd",
+        "voice",
+        "motor",
+        "retina"
+      ],
+      "missing_modalities": [
+        "olfactory"
+      ],
+      "metrics": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            0,
+            27
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.0,
+        "rbd": 0.2483000010251999,
+        "voice": 0.25279998779296875,
+        "motor": 0.25529998540878296,
+        "retina": 0.24369999766349792
+      },
+      "auc_drop": 0.0,
+      "f1_drop": -0.0189
+    },
+    "missing_rbd": {
+      "active_modalities": [
+        "olfactory",
+        "voice",
+        "motor",
+        "retina"
+      ],
+      "missing_modalities": [
+        "rbd"
+      ],
+      "metrics": {
+        "accuracy": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            0,
+            27
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.25060001015663147,
+        "rbd": 0.0,
+        "voice": 0.25200000405311584,
+        "motor": 0.25450000166893005,
+        "retina": 0.24289999902248383
+      },
+      "auc_drop": 0.0,
+      "f1_drop": -0.0189
+    },
+    "missing_voice": {
+      "active_modalities": [
+        "olfactory",
+        "rbd",
+        "motor",
+        "retina"
+      ],
+      "missing_modalities": [
+        "voice"
+      ],
+      "metrics": {
+        "accuracy": 0.9623,
+        "precision": 1.0,
+        "recall": 0.9259,
+        "f1": 0.9615,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            2,
+            25
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.2517000138759613,
+        "rbd": 0.24860000610351562,
+        "voice": 0.0,
+        "motor": 0.2556000053882599,
+        "retina": 0.24400000274181366
+      },
+      "auc_drop": 0.0,
+      "f1_drop": 0.0196
+    },
+    "missing_motor": {
+      "active_modalities": [
+        "olfactory",
+        "rbd",
+        "voice",
+        "retina"
+      ],
+      "missing_modalities": [
+        "motor"
+      ],
+      "metrics": {
+        "accuracy": 0.9623,
+        "precision": 1.0,
+        "recall": 0.9259,
+        "f1": 0.9615,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            2,
+            25
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.2522999942302704,
+        "rbd": 0.2493000030517578,
+        "voice": 0.25380000472068787,
+        "motor": 0.0,
+        "retina": 0.24459999799728394
+      },
+      "auc_drop": 0.0,
+      "f1_drop": 0.0196
+    },
+    "missing_retina": {
+      "active_modalities": [
+        "olfactory",
+        "rbd",
+        "voice",
+        "motor"
+      ],
+      "missing_modalities": [
+        "retina"
+      ],
+      "metrics": {
+        "accuracy": 0.9811,
+        "precision": 1.0,
+        "recall": 0.963,
+        "f1": 0.9811,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            1,
+            26
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.24940000474452972,
+        "rbd": 0.24639999866485596,
+        "voice": 0.250900000333786,
+        "motor": 0.2533000111579895,
+        "retina": 0.0
+      },
+      "auc_drop": 0.0,
+      "f1_drop": 0.0
+    },
+    "missing_retina_and_voice": {
+      "active_modalities": [
+        "olfactory",
+        "rbd",
+        "motor"
+      ],
+      "missing_modalities": [
+        "voice",
+        "retina"
+      ],
+      "metrics": {
+        "accuracy": 0.9434,
+        "precision": 1.0,
+        "recall": 0.8889,
+        "f1": 0.9412,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            3,
+            24
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.3328999876976013,
+        "rbd": 0.328900009393692,
+        "voice": 0.0,
+        "motor": 0.33820000290870667,
+        "retina": 0.0
+      },
+      "auc_drop": 0.0,
+      "f1_drop": 0.0399
+    },
+    "missing_retina_and_motor": {
+      "active_modalities": [
+        "olfactory",
+        "rbd",
+        "voice"
+      ],
+      "missing_modalities": [
+        "motor",
+        "retina"
+      ],
+      "metrics": {
+        "accuracy": 0.9623,
+        "precision": 1.0,
+        "recall": 0.9259,
+        "f1": 0.9615,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            2,
+            25
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.33399999141693115,
+        "rbd": 0.33000001311302185,
+        "voice": 0.335999995470047,
+        "motor": 0.0,
+        "retina": 0.0
+      },
+      "auc_drop": 0.0,
+      "f1_drop": 0.0196
+    },
+    "missing_voice_and_motor": {
+      "active_modalities": [
+        "olfactory",
+        "rbd",
+        "retina"
+      ],
+      "missing_modalities": [
+        "voice",
+        "motor"
+      ],
+      "metrics": {
+        "accuracy": 0.9057,
+        "precision": 1.0,
+        "recall": 0.8148,
+        "f1": 0.898,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            5,
+            22
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.33809998631477356,
+        "rbd": 0.33399999141693115,
+        "voice": 0.0,
+        "motor": 0.0,
+        "retina": 0.3278000056743622
+      },
+      "auc_drop": 0.0,
+      "f1_drop": 0.0831
+    },
+    "missing_olfactory_and_rbd": {
+      "active_modalities": [
+        "voice",
+        "motor",
+        "retina"
+      ],
+      "missing_modalities": [
+        "olfactory",
+        "rbd"
+      ],
+      "metrics": {
+        "accuracy": 0.9434,
+        "precision": 0.9,
+        "recall": 1.0,
+        "f1": 0.9474,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            23,
+            3
+          ],
+          [
+            0,
+            27
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.0,
+        "rbd": 0.0,
+        "voice": 0.33629998564720154,
+        "motor": 0.33959999680519104,
+        "retina": 0.32420000433921814
+      },
+      "auc_drop": 0.0,
+      "f1_drop": 0.0337
+    },
+    "missing_retina_and_olfactory": {
+      "active_modalities": [
+        "rbd",
+        "voice",
+        "motor"
+      ],
+      "missing_modalities": [
+        "olfactory",
+        "retina"
+      ],
+      "metrics": {
+        "accuracy": 0.9623,
+        "precision": 1.0,
+        "recall": 0.9259,
+        "f1": 0.9615,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            2,
+            25
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.0,
+        "rbd": 0.32829999923706055,
+        "voice": 0.334199994802475,
+        "motor": 0.3375000059604645,
+        "retina": 0.0
+      },
+      "auc_drop": 0.0,
+      "f1_drop": 0.0196
+    },
+    "missing_retina_and_voice_and_motor": {
+      "active_modalities": [
+        "olfactory",
+        "rbd"
+      ],
+      "missing_modalities": [
+        "voice",
+        "motor",
+        "retina"
+      ],
+      "metrics": {
+        "accuracy": 0.8679,
+        "precision": 1.0,
+        "recall": 0.7407,
+        "f1": 0.8511,
+        "roc_auc": 1.0,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            7,
+            20
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.5030999779701233,
+        "rbd": 0.4968999922275543,
+        "voice": 0.0,
+        "motor": 0.0,
+        "retina": 0.0
+      },
+      "auc_drop": 0.0,
+      "f1_drop": 0.13
+    },
+    "missing_olfactory_and_rbd_and_retina": {
+      "active_modalities": [
+        "voice",
+        "motor"
+      ],
+      "missing_modalities": [
+        "olfactory",
+        "rbd",
+        "retina"
+      ],
+      "metrics": {
+        "accuracy": 0.8679,
+        "precision": 0.8125,
+        "recall": 0.963,
+        "f1": 0.8814,
+        "roc_auc": 0.9915,
+        "confusion_matrix": [
+          [
+            20,
+            6
+          ],
+          [
+            1,
+            26
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.0,
+        "rbd": 0.0,
+        "voice": 0.4975000023841858,
+        "motor": 0.5024999976158142,
+        "retina": 0.0
+      },
+      "auc_drop": 0.0085,
+      "f1_drop": 0.0997
+    },
+    "missing_olfactory_and_rbd_and_voice": {
+      "active_modalities": [
+        "motor",
+        "retina"
+      ],
+      "missing_modalities": [
+        "olfactory",
+        "rbd",
+        "voice"
+      ],
+      "metrics": {
+        "accuracy": 0.9057,
+        "precision": 0.8929,
+        "recall": 0.9259,
+        "f1": 0.9091,
+        "roc_auc": 0.9744,
+        "confusion_matrix": [
+          [
+            23,
+            3
+          ],
+          [
+            2,
+            25
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.0,
+        "rbd": 0.0,
+        "voice": 0.0,
+        "motor": 0.5116000175476074,
+        "retina": 0.48840001225471497
+      },
+      "auc_drop": 0.0256,
+      "f1_drop": 0.072
+    },
+    "only_olfactory_present": {
+      "active_modalities": [
+        "olfactory"
+      ],
+      "missing_modalities": [
+        "rbd",
+        "voice",
+        "motor",
+        "retina"
+      ],
+      "metrics": {
+        "accuracy": 0.8868,
+        "precision": 1.0,
+        "recall": 0.7778,
+        "f1": 0.875,
+        "roc_auc": 0.9779,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            6,
+            21
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 1.0,
+        "rbd": 0.0,
+        "voice": 0.0,
+        "motor": 0.0,
+        "retina": 0.0
+      },
+      "auc_drop": 0.0221,
+      "f1_drop": 0.1061
+    },
+    "only_rbd_present": {
+      "active_modalities": [
+        "rbd"
+      ],
+      "missing_modalities": [
+        "olfactory",
+        "voice",
+        "motor",
+        "retina"
+      ],
+      "metrics": {
+        "accuracy": 0.8491,
+        "precision": 1.0,
+        "recall": 0.7037,
+        "f1": 0.8261,
+        "roc_auc": 0.9886,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            8,
+            19
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.0,
+        "rbd": 1.0,
+        "voice": 0.0,
+        "motor": 0.0,
+        "retina": 0.0
+      },
+      "auc_drop": 0.0114,
+      "f1_drop": 0.155
+    },
+    "only_voice_present": {
+      "active_modalities": [
+        "voice"
+      ],
+      "missing_modalities": [
+        "olfactory",
+        "rbd",
+        "motor",
+        "retina"
+      ],
+      "metrics": {
+        "accuracy": 0.5094,
+        "precision": 0.5098,
+        "recall": 0.963,
+        "f1": 0.6667,
+        "roc_auc": 0.9003,
+        "confusion_matrix": [
+          [
+            1,
+            25
+          ],
+          [
+            1,
+            26
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.0,
+        "rbd": 0.0,
+        "voice": 1.0,
+        "motor": 0.0,
+        "retina": 0.0
+      },
+      "auc_drop": 0.0997,
+      "f1_drop": 0.3144
+    },
+    "only_motor_present": {
+      "active_modalities": [
+        "motor"
+      ],
+      "missing_modalities": [
+        "olfactory",
+        "rbd",
+        "voice",
+        "retina"
+      ],
+      "metrics": {
+        "accuracy": 0.9434,
+        "precision": 1.0,
+        "recall": 0.8889,
+        "f1": 0.9412,
+        "roc_auc": 0.9744,
+        "confusion_matrix": [
+          [
+            26,
+            0
+          ],
+          [
+            3,
+            24
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.0,
+        "rbd": 0.0,
+        "voice": 0.0,
+        "motor": 1.0,
+        "retina": 0.0
+      },
+      "auc_drop": 0.0256,
+      "f1_drop": 0.0399
+    },
+    "only_retina_present": {
+      "active_modalities": [
+        "retina"
+      ],
+      "missing_modalities": [
+        "olfactory",
+        "rbd",
+        "voice",
+        "motor"
+      ],
+      "metrics": {
+        "accuracy": 0.6792,
+        "precision": 0.6786,
+        "recall": 0.7037,
+        "f1": 0.6909,
+        "roc_auc": 0.7657,
+        "confusion_matrix": [
+          [
+            17,
+            9
+          ],
+          [
+            8,
+            19
+          ]
+        ],
+        "number_of_samples": 53,
+        "class_balance": {
+          "class_0": 26,
+          "class_1": 27
+        }
+      },
+      "mean_gate_weights": {
+        "olfactory": 0.0,
+        "rbd": 0.0,
+        "voice": 0.0,
+        "motor": 0.0,
+        "retina": 1.0
+      },
+      "auc_drop": 0.2343,
+      "f1_drop": 0.2902
+    }
+  },
+  "recommendations": {
+    "minimum_required_modalities": 2,
+    "high_priority_anchors": [
+      "olfactory",
+      "rbd"
+    ],
+    "uncertainty_policy": "When >= 3 modalities are missing or neither olfactory nor RBD is available, the confidence score is penalized and an elevated-uncertainty warning flag MUST be emitted in the explanation and pipeline outputs."
+  }
+}

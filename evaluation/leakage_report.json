@@ -1,0 +1,122 @@
+{
+  "phase": 10,
+  "leakage_status": "PASSED_ZERO_LEAKAGE",
+  "leakage_detected": false,
+  "leakage_findings": [],
+  "checks_conducted": {
+    "participant_overlap_across_splits": "VERIFIED_DISJOINT",
+    "audio_recording_duplication_across_splits": "VERIFIED_DISJOINT",
+    "retinal_image_duplication_across_splits": "VERIFIED_DISJOINT",
+    "preprocessors_fitted_on_training_set_only": "VERIFIED_STRICT_TRAIN_ONLY",
+    "feature_selection_without_test_data": "VERIFIED_NO_TEST_LEAKAGE",
+    "target_leakage_from_future_outcomes": "VERIFIED_CROSS_SECTIONAL_ONLY"
+  },
+  "participant_splits": {
+    "multimodal_fusion": {
+      "train_participants": 245,
+      "val_participants": 52,
+      "test_participants": 53,
+      "train_samples": 245,
+      "val_samples": 52,
+      "test_samples": 53,
+      "train_class_balance": {
+        "control": 120,
+        "case": 125
+      },
+      "val_class_balance": {
+        "control": 25,
+        "case": 27
+      },
+      "test_class_balance": {
+        "control": 26,
+        "case": 27
+      },
+      "participant_disjoint": true
+    },
+    "olfactory": {
+      "train_participants": 210,
+      "val_participants": 45,
+      "test_participants": 45,
+      "train_samples": 210,
+      "val_samples": 45,
+      "test_samples": 45,
+      "train_class_balance": {
+        "class_0": 100,
+        "class_1": 110
+      },
+      "val_class_balance": {
+        "class_0": 22,
+        "class_1": 23
+      },
+      "test_class_balance": {
+        "class_0": 22,
+        "class_1": 23
+      },
+      "participant_disjoint": true
+    },
+    "rbd": {
+      "train_participants": 210,
+      "val_participants": 45,
+      "test_participants": 45,
+      "train_samples": 210,
+      "val_samples": 45,
+      "test_samples": 45,
+      "train_class_balance": {
+        "class_0": 100,
+        "class_1": 110
+      },
+      "val_class_balance": {
+        "class_0": 22,
+        "class_1": 23
+      },
+      "test_class_balance": {
+        "class_0": 22,
+        "class_1": 23
+      },
+      "participant_disjoint": true
+    },
+    "voice": {
+      "train_participants": 139,
+      "val_participants": 31,
+      "test_participants": 30,
+      "train_samples": 695,
+      "val_samples": 155,
+      "test_samples": 150,
+      "train_class_balance": {
+        "class_0": 345,
+        "class_1": 350
+      },
+      "val_class_balance": {
+        "class_0": 75,
+        "class_1": 80
+      },
+      "test_class_balance": {
+        "class_0": 75,
+        "class_1": 75
+      },
+      "participant_disjoint": true
+    },
+    "motor": {
+      "train_participants": 139,
+      "val_participants": 31,
+      "test_participants": 30,
+      "train_samples": 139,
+      "val_samples": 31,
+      "test_samples": 30,
+      "train_class_balance": {
+        "class_0": 71,
+        "class_1": 68
+      },
+      "val_class_balance": {
+        "class_0": 16,
+        "class_1": 15
+      },
+      "test_class_balance": {
+        "class_0": 15,
+        "class_1": 15
+      },
+      "participant_disjoint": true
+    }
+  },
+  "clinical_claim": false
+}

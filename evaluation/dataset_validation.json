@@ -1,0 +1,177 @@
+{
+  "phase": 10,
+  "validation_timestamp": "2026-09-15T18:00:00Z",
+  "experiment_type": "prototype_simulation",
+  "clinical_claim": false,
+  "total_datasets_registered": 8,
+  "categories_verified": [
+    "external_validation",
+    "modality_specific",
+    "pretraining",
+    "same_participant_multimodal",
+    "synthetic_fixture"
+  ],
+  "datasets": {
+    "mpower": {
+      "dataset_id": "mpower",
+      "name": "Parkinson Disease Mobile Data Study (mPower)",
+      "category_code": "A",
+      "category": "same_participant_multimodal",
+      "modalities": [
+        "voice_speech",
+        "motor_gait",
+        "motor_tapping",
+        "cognitive"
+      ],
+      "label_definition": "approx. 3000 (Self-reported PD diagnosis) / unknown / approx. 7000 (Self-reported controls)",
+      "participant_count": "10000+",
+      "missingness": "High longitudinal participant attrition; missing task sessions",
+      "access_requirements": "Synapse user registration, human subjects research ethics training, and data access request",
+      "license": "Synapse Qualified Researcher Governance Terms",
+      "local_availability": false,
+      "intended_use": "Large-scale self-supervised pretraining for mobile digital biomarkers",
+      "main_limitation": "Self-reported diagnostic status; variable smartphone sensor quality; high noise",
+      "verified": true
+    },
+    "oct500": {
+      "dataset_id": "oct500",
+      "name": "OCT500 Retinal Optical Coherence Tomography Dataset",
+      "category_code": "C",
+      "category": "pretraining",
+      "modalities": [
+        "retina_oct",
+        "retina_octa"
+      ],
+      "label_definition": "0 (Contains NO Parkinson's disease labels) / 0 / 0",
+      "participant_count": "500",
+      "missingness": "Low SNR frames in deeper choroidal scans",
+      "access_requirements": "Academic email registration and non-commercial end-user agreement",
+      "license": "Academic Non-Commercial License",
+      "local_availability": false,
+      "intended_use": "Pretraining 3D OCT layer segmentation and retinal nerve fiber layer (RNFL) encoder models",
+      "main_limitation": "Contains retinal disease labels (AMD, DR, CNV) but NO Parkinson's disease labels; small sample size (N=500)",
+      "verified": true
+    },
+    "physionet_gait": {
+      "dataset_id": "physionet_gait",
+      "name": "Gait in Parkinson's Disease Dataset",
+      "category_code": "B",
+      "category": "modality_specific",
+      "modalities": [
+        "motor_gait"
+      ],
+      "label_definition": "93 (Parkinson's Disease patients) / 0 / 73 (Healthy Controls)",
+      "participant_count": "166",
+      "missingness": "Minimal frame loss across 2-minute steady walking recordings",
+      "access_requirements": "None (Open Access with standard citation)",
+      "license": "Open Data Commons Attribution License (ODC-By) v1.0",
+      "local_availability": false,
+      "intended_use": "Modality-specific pretraining and feature extraction evaluation for the gait/motor branch",
+      "main_limitation": "Single-modality gait force time-series; recorded under controlled laboratory conditions; no non-motor labels",
+      "verified": true
+    },
+    "ppmi": {
+      "dataset_id": "ppmi",
+      "name": "Parkinson's Progression Markers Initiative",
+      "category_code": "A",
+      "category": "same_participant_multimodal",
+      "modalities": [
+        "olfactory",
+        "rbd_sleep",
+        "motor_gait",
+        "voice_speech",
+        "biospecimens",
+        "imaging"
+      ],
+      "label_definition": "approx. 1500 (De Novo & Genetic PD) / approx. 600 (RBD, Hyposmia, Genetic Risk) / approx. 800 (Healthy Controls)",
+      "participant_count": "4000+",
+      "missingness": "Longitudinal attrition, optional sub-study non-completion, visit window missingness",
+      "access_requirements": "Account registration, research plan submission, and signed PPMI Data Use Agreement (DUA)",
+      "license": "PPMI Data Use Agreement",
+      "local_availability": false,
+      "intended_use": "Primary dataset for prototype training, multimodal fusion development, and longitudinal validation",
+      "main_limitation": "Complex schema changes across annual data releases; restricted access for specific bio-assays (e.g. SAA)",
+      "verified": true
+    },
+    "predict_pd": {
+      "dataset_id": "predict_pd",
+      "name": "PREDICT-PD Study Cohort",
+      "category_code": "A",
+      "category": "same_participant_multimodal",
+      "modalities": [
+        "olfactory",
+        "rbd_sleep",
+        "motor_tapping",
+        "non_motor_risk"
+      ],
+      "label_definition": "Incident PD cases tracked longitudinally / approx. 500 (High-risk prodromal tier) / approx. 8000+ (Low-risk general population controls)",
+      "participant_count": "10000+",
+      "missingness": "Self-administered online questionnaire missingness; longitudinal drop-off",
+      "access_requirements": "Formal collaboration application to study PIs (predictpd@qmul.ac.uk) and institutional ethics committee approval",
+      "license": "Institutional Data Transfer Agreement (DTA)",
+      "local_availability": false,
+      "intended_use": "External validation dataset for prodromal risk stratification and non-motor algorithm testing",
+      "main_limitation": "Not available for open public download; keyboard tapping is less precise than clinical force sensors",
+      "verified": true
+    },
+    "retinal_fundus_pretraining": {
+      "dataset_id": "retinal_fundus_pretraining",
+      "name": "Retinal Fundus Pretraining Corpus (EyePACS / Messidor-2 / DRIVE / APTOS)",
+      "category_code": "C",
+      "category": "pretraining",
+      "modalities": [
+        "retina_fundus"
+      ],
+      "label_definition": "0 (Contains NO Parkinson's disease labels) / 0 / 0",
+      "participant_count": "40000+",
+      "missingness": "Non-uniform image sizing, illumination gradients, media opacities",
+      "access_requirements": "Kaggle user registration and competition terms agreement",
+      "license": "Custom Academic / Non-Commercial / CC-BY-NC",
+      "local_availability": false,
+      "intended_use": "Pretraining CNN / Vision Transformer backbones for retinal vessel segmentation and feature representation",
+      "main_limitation": "Strictly pretraining only; contains diabetic retinopathy and normal eye images but NO Parkinson's clinical labels",
+      "verified": true
+    },
+    "synthetic_fixture": {
+      "dataset_id": "synthetic_fixture",
+      "name": "MPF-PD Synthetic Test Fixture",
+      "category_code": "E",
+      "category": "synthetic_fixture",
+      "modalities": [
+        "olfactory",
+        "rbd_sleep",
+        "motor_gait",
+        "voice_speech",
+        "retina_fundus"
+      ],
+      "label_definition": "35 (Synthetic mock PD class) / 30 (Synthetic mock Prodromal class) / 35 (Synthetic mock Control class)",
+      "participant_count": "100",
+      "missingness": "Controlled synthetic missingness (10% missing values per column)",
+      "access_requirements": "None",
+      "license": "MIT License",
+      "local_availability": false,
+      "intended_use": "Unit testing, continuous integration, and pipeline validation",
+      "main_limitation": "Purely synthetic test fixture; contains zero physiological reality or real patient evidence",
+      "verified": true
+    },
+    "uci_voice": {
+      "dataset_id": "uci_voice",
+      "name": "UCI Parkinson's Telemonitoring Dataset",
+      "category_code": "B",
+      "category": "modality_specific",
+      "modalities": [
+        "voice_speech"
+      ],
+      "label_definition": "42 (Early-stage PD patients monitored over 6 months) / 0 / 0",
+      "participant_count": "42",
+      "missingness": "Low missingness within acoustic features; uneven recording intervals per patient",
+      "access_requirements": "None (Open Access)",
+      "license": "CC BY 4.0",
+      "local_availability": false,
+      "intended_use": "Modality-specific representation learning and regression target prediction for the speech/voice branch",
+      "main_limitation": "Small subject count (N=42); lacks healthy control group; single modality (voice only)",
+      "verified": true
+    }
+  },
+  "notes": "All real datasets (PPMI, PREDICT-PD, mPower, UCI Voice, PhysioNet Gait, OCT500) require credentialed access or local download. In accordance with zero fabrication rules, where local raw files are not detected, the system safely uses synthetic fixtures (Category E) explicitly labeled as simulation mode with zero clinical validity."
+}

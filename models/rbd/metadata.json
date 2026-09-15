@@ -75,7 +75,7 @@
     "cv_roc_auc_mean": 0.9959
   },
   "seed": 42,
-  "timestamp": "2026-09-15T12:26:18.202039+00:00",
+  "timestamp": "2026-09-15T13:11:17.423094+00:00",
   "limitations": [
     "Age-adjusted RBD risk norms are not published for standard RBDSQ scale; age_adjusted_rbd_risk omitted to avoid fabrication.",
     "If only a subset of RBDSQ items (1-13) is available, item_subscores uses available items and documents missingness.",

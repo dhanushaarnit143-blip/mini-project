@@ -64,7 +64,7 @@
     "cv_roc_auc_mean": 0.9991
   },
   "seed": 42,
-  "timestamp": "2026-09-15T12:26:14.080266+00:00",
+  "timestamp": "2026-09-15T13:11:11.930622+00:00",
   "limitations": [
     "Age-adjusted normative tables (e.g., Doty UPSIT age/sex percentiles) are not available in public tabular export without proprietary tables; age_adjusted_score omitted to prevent data fabrication.",
     "If raw item-level responses (1-40) are absent, error_pattern_flags represents a summary flag of high-risk odor errors.",
