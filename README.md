@@ -1,98 +1,315 @@
 # MPF-PD: Multimodal Prodromal Fusion for Parkinson’s Disease Risk Screening
 
-## Project Summary
-A research prototype investigating multimodal fusion of olfactory, RBD, voice, motor/gait, and retinal biomarkers for early Parkinson’s risk screening.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)
+[![PyTorch: 2.0+](https://img.shields.io/badge/PyTorch-2.0%2B-orange.svg)](https://pytorch.org/)
+[![Status: Research Prototype](https://img.shields.io/badge/Status-Research_Prototype-red.svg)](docs/LIMITATIONS.md)
 
-## Medical Disclaimer
-> [!WARNING]
-> **This project is a research prototype and does not provide medical diagnosis.**
-> It is designed exclusively for investigational risk stratification research and decision-support algorithms.
+---
 
-## Defensible Novelty Statement
-The main investigational contribution of this work is the fusion of non-invasive retinal microvascular/structural biomarkers with prodromal digital (voice, touchscreen motor, IMU gait/tremor) and clinical (RBDSQ, olfactory) biomarkers deployed via a non-specialist screening pathway.
+> [!IMPORTANT]
+> ### ⚠️ MANDATORY CLINICAL AND REGULATORY DISCLAIMER
+> **This project is a research prototype. It does not diagnose Parkinson’s disease.**  
+> It does not provide medical diagnoses, treatment advice, or clinical diagnostic certainties. It is designed exclusively for investigational machine learning research into multimodal biomarker fusion and risk pattern estimation. 
+> 
+> Permissible descriptive terms:
+> - *"Research risk estimate"*
+> - *"Elevated Parkinson's risk pattern"*
+> - *"Increased risk signal"*
+> - *"Requires clinician review if used in future clinical studies"*
+>
+> All experimental results reported in this repository were evaluated in a `prototype_simulation` mode using an aligned synthetic test fixture (`Category E`) because open-access same-participant 5-modality clinical cohorts are restricted under data use agreements. These metrics carry **zero clinical validity**.
 
-## Phase Roadmap
-- **Phase 0: Environment & Architecture Setup** (Current)
-- **Phase 1: Dataset Research & Data Engineering**
-- **Phase 2: Olfactory + RBD Biomarker Pipelines**
-- **Phase 3: Voice Biomarker Pipeline**
-- **Phase 4: Touchscreen & IMU Motor/Gait Biomarker Pipeline**
-- **Phase 5: Retinal Biomarker Pipeline**
-- **Phase 6: Multimodal Fusion & Explainability Dashboard**
+---
 
-## Installation Instructions
+## Table of Contents
+1. [Problem Statement](#1-problem-statement)
+2. [Motivation](#2-motivation)
+3. [Objectives](#3-objectives)
+4. [Proposed Methodology](#4-proposed-methodology)
+5. [The Five Core Biomarker Modalities](#5-the-five-core-biomarker-modalities)
+6. [Gated Multimodal Fusion Architecture](#6-gated-multimodal-fusion-architecture)
+7. [Final Classifier (XGBoost)](#7-final-classifier-xgboost)
+8. [SHAP Explainability Layer](#8-shap-explainability-layer)
+9. [Technology Stack](#9-technology-stack)
+10. [Documentation Suite](#10-documentation-suite)
+11. [Installation Instructions](#11-installation-instructions)
+12. [Dataset Setup Instructions](#12-dataset-setup-instructions)
+13. [Training Instructions](#13-training-instructions)
+14. [Evaluation Instructions](#14-evaluation-instructions)
+15. [Interactive Web Dashboard](#15-interactive-web-dashboard)
+16. [Key Research Limitations](#16-key-research-limitations)
+17. [Research Disclaimer & Citation](#17-research-disclaimer--citation)
+
+---
+
+## 1. Problem Statement
+
+Parkinson's disease (PD) is the second most prevalent neurodegenerative disorder worldwide. Pathologically, it is characterized by the accumulation of misfolded $\alpha$-synuclein Lewy pathology and the progressive degeneration of dopaminergic neurons in the substantia nigra pars compacta.
+
+By the time classic cardinal motor symptoms (bradykinesia, rest tremor, rigidity) manifest clinically, **50% to 70% of dopaminergic neurons have already been irreversibly destroyed**. Identifying individuals in the early **prodromal phase** (which lasts 5 to 20 years before motor diagnosis) is imperative for future disease-modifying neuroprotective therapies. However, current prodromal screening is severely hampered by reliance on late-stage motor examinations and siloed, single-modality assessments that suffer from high false-positive rates when deployed in non-specialist clinical settings.
+
+---
+
+## 2. Motivation
+
+Non-invasive clinical and digital biomarkers offer an unprecedented opportunity for early risk stratification:
+- **Olfactory Dysfunction:** Hyposmia is present in over 90% of early-stage Parkinson's patients and frequently precedes motor signs by a decade.
+- **REM Sleep Behavior Disorder (RBD):** Idiopathic RBD confers an 80%+ risk of phenoconverting to an overt $\alpha$-synucleinopathy over 10–15 years.
+- **Vocal Dysphonia:** Micro-perturbations in sustained vowel phonation (jitter, shimmer, pitch period entropy) emerge as early laryngeal motor control degrades.
+- **Gait Dynamics:** Subtle alterations in stride regularity, cadence, and stance/swing asymmetry can be captured through ambulatory force or accelerometry sensors.
+- **Retinal Microvasculature:** The retina is an embryological extension of the central nervous system; retinal ganglion cell thinning and microvascular branching attenuation mirror cerebral microvascular and dopaminergic changes.
+
+Integrating these five distinct physiological windows into a unified screening framework addresses the poor positive predictive value of any single marker evaluated in isolation.
+
+---
+
+## 3. Objectives
+
+1. **Develop an End-to-End Multimodal Pipeline:** Implement automated feature extraction and encoding across olfactory, RBD, voice, motor/gait, and retinal biomarkers.
+2. **Engineer a Gated Attention Fusion Network:** Create a deep learning attention unit that learns cross-biomarker representations and dynamically handles missing modalities via attention masking and learnable placeholder tokens.
+3. **Achieve Calibrated Risk Estimation:** Combine latent representations with calibrated tree ensembles to deliver bounded research risk scores $[0.0, 1.0]$.
+4. **Deliver Transparent Explainability:** Integrate exact TreeSHAP attributions to decompose risk scores into individual feature contributions and modality percentage shares.
+5. **Enforce Absolute Scientific Integrity:** Build strict safeguards against data leakage, prohibit fabricated outputs, and maintain transparent disclaimers across all user-facing interfaces.
+
+---
+
+## 4. Proposed Methodology
+
+The MPF-PD framework operates according to a strict multi-tier engineering and scientific protocol:
+- **Participant-Level Stratified Partitioning:** Zero leakage between training (70%), validation (15%), and held-out testing (15%) partitions. Preprocessors are fitted strictly on training data.
+- **Physiological Bounds Enforcement:** Automated clamping and validation against established physiological bounds for all sensor and questionnaire inputs.
+- **Representation Learning:** Each modality is transformed into a uniform 32-dimensional latent embedding space using regularized deep neural encoders.
+- **Dynamic Masked Gated Attention:** The fusion layer assigns softmax attention weights to present modalities ($\sum \alpha_m = 1.0$) while completely masking absent modalities ($\alpha_m = 0.0$).
+- **Covariate & Presence Integration:** Demographics (age, sex) and binary presence flags are concatenated with the gated vector into a 45-dimensional fused representation.
+- **Calibrated Tree Classification & Shapley Attribution:** Evaluated with 1,000-sample bootstrap confidence intervals, Brier calibration scoring, and exact Shapley decomposition.
+
+Detailed methodology: [docs/METHODOLOGY.md](docs/METHODOLOGY.md).
+
+---
+
+## 5. The Five Core Biomarker Modalities
+
+| Modality | Clinical Tool / Source | Extracted Features & Representation | Baseline Model |
+| :--- | :--- | :--- | :--- |
+| **Olfactory** | UPSIT 40-item / CC-SIT | Total score, % correct, response latency, error count, high-risk odor flags ($D=5$) | Random Forest Classifier |
+| **RBD Sleep** | 13-item RBDSQ | Total score, cutoff flag ($\ge 5$), enactment flags, item indicators ($D=16$) | Logistic Regression ($L_2$) |
+| **Voice / Speech**| Sustained vowel `/a/` | Jitter (5 variants), Shimmer (6 variants), NHR, HNR, RPDE, DFA, PPE ($D=16$) | Logistic Regression ($L_2$) |
+| **Motor / Gait** | Bilateral VGRF Force Sensors | Gait speed, cadence, stride interval mean/CV, step regularity, symmetry, stance/swing ($D=8$) | Logistic Regression ($L_2$) |
+| **Retina** | Color Fundus Photography | Vessel density, tortuosity, FAZ area, branching + ResNet18 CNN embedding ($D=28$) | Morphometry + ResNet18 |
+
+Full architecture specifications: [docs/MODEL_ARCHITECTURE.md](docs/MODEL_ARCHITECTURE.md).
+
+---
+
+## 6. Gated Multimodal Fusion Architecture
+
+```mermaid
+graph TD
+    A[Participant Input] --> B[Data Validation]
+    B --> C[Olfactory Pipeline]
+    B --> D[RBD Pipeline]
+    B --> E[Voice Pipeline]
+    B --> F[Motor/Gait Pipeline]
+    B --> G[Retinal Pipeline]
+    C --> H[Modality Encoders]
+    D --> H
+    E --> H
+    F --> H
+    G --> H
+    H --> I[Gated Multimodal Fusion]
+    I --> J[Final Risk Classifier]
+    J --> K[Risk Score]
+    J --> L[SHAP Explainability]
+    K --> M[Dashboard]
+    L --> M
+```
+
+- **Encoder Projection:** Each present modality $\mathbf{x}_m$ is mapped to embedding $\mathbf{e}_m \in \mathbb{R}^{32}$. Absent modalities are substituted with learnable missing token $\mathbf{t}_m$.
+- **Attention Scoring:** Attention logits $s_m = \mathbf{v}^\top \tanh(\mathbf{W} \mathbf{e}_m + \mathbf{b})$ are masked with $-10^9$ for absent modalities.
+- **Attention Softmax:** Gate weights $\alpha_m = \frac{\exp(s'_m)}{\sum \exp(s'_k)}$ strictly sum to $1.0$ across active modalities.
+- **Representation Aggregation:** $\mathbf{z}_{\text{gated}} = \sum_{m=1}^5 \alpha_m \mathbf{e}_m \in \mathbb{R}^{32}$.
+- **Augmentation:** Concatenated with 8-dimensional demographic embedding $\mathbf{z}_{\text{demo}}$ and 5-dimensional presence indicators $\mathbf{p}$ to yield the final vector $\mathbf{z}_{\text{final}} \in \mathbb{R}^{45}$.
+
+Full mathematical formulation: [docs/PROJECT_ARCHITECTURE.md](docs/PROJECT_ARCHITECTURE.md).
+
+---
+
+## 7. Final Classifier (XGBoost)
+
+The risk estimation engine is an optimized **XGBoost Classifier** (`XGBClassifier`) fitted on the 45-dimensional fused vector:
+- Hyperparameters: `n_estimators=100`, `max_depth=3`, `learning_rate=0.05`, `reg_lambda=1.0`.
+- Output: Continuous calibrated risk probability $\hat{y} \in [0.0, 1.0]$.
+- Calibration: Achieves an optimal Brier score of **`0.0031`** on the test partition, outperforming early concatenation (`0.0042`) and late probability averaging (`0.0125`).
+
+Benchmark tables: [docs/RESULTS.md](docs/RESULTS.md).
+
+---
+
+## 8. SHAP Explainability Layer
+
+To ensure clinical transparency, the system employs **TreeSHAP** (`shap.TreeExplainer`):
+- **Exact Polynomial Calculation:** Direct extraction of Shapley values on the 45-dimensional fused vector without Monte Carlo approximations.
+- **Local Explanation:** Decomposes an individual's risk score into specific positive and negative drivers.
+- **Missingness Attribution:** Directly isolates the statistical impact of omitting a modality via the presence flag coefficients ($p_{40} \dots p_{44}$).
+- **Modality Contribution Breakdown:** Aggregates gated embedding dimensions weighted by dynamic gate weights $\alpha_m$ to report percentage contributions per clinical branch.
+
+Explainability report: [evaluation/XAI_REPORT.md](evaluation/XAI_REPORT.md).
+
+---
+
+## 9. Technology Stack
+
+- **Core Machine Learning:** Python 3.10+, PyTorch 2.0+, Scikit-Learn, XGBoost, SHAP
+- **Scientific Computing & Signal Processing:** NumPy, SciPy, Pandas, OpenCV (cv2)
+- **Data Validation & Configuration:** Pydantic v2, PyYAML
+- **Backend Service:** FastAPI, Uvicorn, Starlette
+- **Frontend Dashboard:** React 18, Vite, Tailwind CSS, Lucide React, Axios
+- **Testing & Quality Assurance:** Pytest, Pytest-cov, Flake8
+
+---
+
+## 10. Documentation Suite
+
+Detailed research documentation is organized under the `docs/` directory:
+
+| Document | Description |
+| :--- | :--- |
+| 📐 [**PROJECT_ARCHITECTURE.md**](docs/PROJECT_ARCHITECTURE.md) | Repository tree, end-to-end data flow, pipeline schemas, and Mermaid diagram. |
+| 🗃️ [**DATASETS.md**](docs/DATASETS.md) | Catalog of all 8 datasets (PPMI, PhysioNet, UCI, EyePACS), access terms, and provenance. |
+| 🧠 [**MODEL_ARCHITECTURE.md**](docs/MODEL_ARCHITECTURE.md) | Mathematical formulation of MLPs, attention gating, missing tokens, and XGBoost. |
+| 🔬 [**METHODOLOGY.md**](docs/METHODOLOGY.md) | Participant splitting, 6 anti-leakage rules, bounds clamping, and bootstrap CIs. |
+| 🧪 [**EXPERIMENTS.md**](docs/EXPERIMENTS.md) | Detailed experimental protocols for unimodal, fusion, degradation, and stress tests. |
+| 📊 [**RESULTS.md**](docs/RESULTS.md) | Complete quantitative benchmarks, gate weights, calibration curves, and SHAP results. |
+| ⚠️ [**LIMITATIONS.md**](docs/LIMITATIONS.md) | Honest disclosure of synthetic data, missing modalities, demographic biases, and boundaries. |
+| ⚖️ [**ETHICAL_CONSIDERATIONS.md**](docs/ETHICAL_CONSIDERATIONS.md) | Psychological distress, false positives/negatives, privacy, fairness, and clinician oversight. |
+| 🚀 [**DEPLOYMENT.md**](docs/DEPLOYMENT.md) | Local installation, FastAPI backend, React dashboard startup, and production boundaries. |
+
+---
+
+## 11. Installation Instructions
+
+### 11.1 Clone and Create Virtual Environment
 ```bash
-# Create virtual environment
-python3 -m venv .venv
-source .venv/bin/activate  # On Windows PowerShell: .venv\Scripts\Activate.ps1
+# Clone the repository
+git clone https://github.com/dhanushaarnit143-blip/mini-project.git
+cd "mini project"
+
+# Create Python virtual environment
+python -m venv .venv
+
+# Activate virtual environment
+# Windows:
+.venv\Scripts\Activate.ps1
+# Linux / macOS:
+source .venv/bin/activate
 
 # Upgrade pip and install core dependencies
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-## Test & Health-Check Instructions
+---
+
+## 12. Dataset Setup Instructions
+
+The repository runs in **`prototype_simulation`** mode out of the box using the synthetic multimodal fixture (`Category E`). No external data downloads are necessary for testing.
+
+To configure external or institutional datasets (e.g. after securing a DUA for PPMI):
+1. Place raw datasets in the designated directories:
+   - `data/raw/ppmi/` (PPMI tabular and imaging files)
+   - `data/raw/physionet_gait/` (PhysioNet VGRF force text files)
+   - `data/raw/uci_voice/` (UCI Telemonitoring voice CSV)
+2. Verify dataset integrity using the registry:
+   ```bash
+   python -c "from src.data.registry import verify_all_datasets; verify_all_datasets()"
+   ```
+
+Detailed dataset instructions: [docs/DATASETS.md](docs/DATASETS.md).
+
+---
+
+## 13. Training Instructions
+
+To retrain unimodal encoders, gated fusion models, and the final risk classifier:
+
 ```bash
-# Run automated tests
+# Train single-modality baseline encoders
+python -m src.olfactory.train
+python -m src.rbd.train
+python -m src.voice.train
+python -m src.motor.train
+
+# Train the Gated Multimodal Fusion network & XGBoost classifier
+python -m src.fusion.train
+```
+
+Trained checkpoints and scalers are automatically serialized to the `models/` directory.
+
+---
+
+## 14. Evaluation Instructions
+
+Execute the comprehensive testing and research validation suite (238+ test assertions):
+
+```bash
+# Run unit and integration tests
 pytest -v
+
+# Run the complete Phase 10 validation runner
+python scripts/run_phase10_validation.py
 
 # Run system health check
 python scripts/healthcheck.py
 ```
 
-## Directory Structure Overview
+Generated metrics, calibration curves, gate weight plots, and leakage audit files will be output to `evaluation/`.
+
+---
+
+## 15. Interactive Web Dashboard
+
+Launch the full-stack research interface to explore interactive predictions, toggle missing modalities, and view SHAP explanations:
+
+```bash
+# Terminal 1: Start FastAPI Backend Service
+python -m uvicorn dashboard.api.main:app --host 0.0.0.0 --port 8000 --reload
+
+# Terminal 2: Start React Frontend Application
+cd dashboard/frontend
+npm install
+npm run dev
 ```
-mpf-pd/
-├── README.md
-├── requirements.txt
-├── config.yaml
-├── .gitignore
-├── data/
-│   ├── raw/
-│   ├── interim/
-│   ├── processed/
-│   ├── external/
-│   └── metadata/
-├── models/
-│   ├── olfactory/
-│   ├── rbd/
-│   ├── voice/
-│   ├── motor/
-│   ├── retina/
-│   └── fusion/
-├── evaluation/
-├── logs/
-├── notebooks/
-├── scripts/
-│   └── healthcheck.py
-├── src/
-│   ├── __init__.py
-│   ├── config.py
-│   ├── logging_utils.py
-│   ├── seeds.py
-│   ├── healthcheck.py
-│   ├── data/
-│   │   ├── __init__.py
-│   │   ├── loaders.py
-│   │   ├── validators.py
-│   │   └── registry.py
-│   ├── olfactory/
-│   │   └── __init__.py
-│   ├── rbd/
-│   │   └── __init__.py
-│   ├── voice/
-│   │   └── __init__.py
-│   ├── motor/
-│   │   └── __init__.py
-│   ├── retina/
-│   │   └── __init__.py
-│   └── fusion/
-│       └── __init__.py
-└── tests/
-    ├── __init__.py
-    ├── test_imports.py
-    ├── test_config.py
-    ├── test_logging.py
-    ├── test_seed.py
-    └── test_healthcheck.py
+
+Open `http://localhost:5173` in your web browser.
+
+---
+
+## 16. Key Research Limitations
+
+1. **Synthetic Simulation Data:** Due to open-access restrictions on 5-modality human cohorts, active modeling used a synthetic test fixture (`Category E`). Results carry **zero clinical diagnostic validity**.
+2. **Dataset Mismatch:** Public unimodal datasets reflect manifest disease (e.g. PhysioNet gait, UCI voice) rather than subtle prodromal changes.
+3. **Missing Modality Uncertainty:** While the network tolerates absent modalities gracefully, statistical uncertainty increases as anchor modalities are omitted.
+4. **Demographic Bias:** Voice, olfaction, and retinal pigmentation vary significantly across ethnic and demographic groups.
+5. **Lack of Prospective Follow-Up:** The system has not been tested prospectively to evaluate actual phenoconversion rates over multi-year clinical follow-up.
+
+Comprehensive limitations: [docs/LIMITATIONS.md](docs/LIMITATIONS.md).
+
+---
+
+## 17. Research Disclaimer & Citation
+
+> [!CAUTION]
+> **“This project is a research prototype. It does not diagnose Parkinson’s disease.”**  
+> Under no circumstances should this software be utilized for medical triage, clinical decision support, or self-testing by patients.
+
+### Citation
+```bibtex
+@misc{mpfpd2026,
+  title={Multimodal Prodromal Fusion for Parkinson's Disease Risk Screening (MPF-PD)},
+  author={MPF-PD Research Consortium},
+  year={2026},
+  note={Investigational Research Prototype},
+  url={https://github.com/dhanushaarnit143-blip/mini-project}
+}
 ```
