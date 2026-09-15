@@ -55,14 +55,15 @@ app.add_middleware(
 @app.get("/api/health", response_model=HealthResponse)
 def health_check() -> HealthResponse:
     """Check readiness of pipeline and model artifacts."""
+    root = Path(_project_root)
     artifacts = {
-        "fusion_classifier": Path("models/fusion/classifier.joblib").exists(),
-        "fusion_encoder": Path("models/fusion/fusion_encoder.pt").exists(),
-        "fusion_preprocessor": Path("models/fusion/preprocessor.joblib").exists(),
-        "voice_model": Path("models/voice/model.joblib").exists(),
-        "motor_model": Path("models/motor/model.joblib").exists(),
-        "olfactory_model": Path("models/olfactory/model.joblib").exists(),
-        "rbd_model": Path("models/rbd/model.joblib").exists(),
+        "fusion_classifier": (root / "models/fusion/classifier.joblib").exists(),
+        "fusion_encoder": (root / "models/fusion/fusion_encoder.pt").exists(),
+        "fusion_preprocessor": (root / "models/fusion/preprocessor.joblib").exists(),
+        "voice_model": (root / "models/voice/model.joblib").exists(),
+        "motor_model": (root / "models/motor/model.joblib").exists(),
+        "olfactory_model": (root / "models/olfactory/model.joblib").exists(),
+        "rbd_model": (root / "models/rbd/model.joblib").exists(),
     }
 
     all_ready = all(artifacts.values())
