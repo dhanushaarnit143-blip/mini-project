@@ -12,19 +12,32 @@ Integrates:
 
 from src.retina.quality import check_image_quality
 from src.retina.preprocess import preprocess_retina, load_retinal_image
-from src.retina.segmentation import segment_retinal_vessels, UNetVesselSegmentation
+from src.retina.segmentation import segment_retinal_vessels, UNetVesselSegmentation, segment_vessels_classical
 from src.retina.vessel_features import extract_vessel_features, RETINA_FEATURE_NAMES
 from src.retina.encoder import RetinalCNNEncoder
 from src.retina.predict import predict_retina
+from src.retina.train import (
+    train_vessel_segmentation,
+    pretrain_retinal_encoder,
+    evaluate_pd_retina,
+    train_retinal_pipeline,
+)
+from src.retina.evaluate import run_retina_evaluation
 
 __all__ = [
     "check_image_quality",
     "preprocess_retina",
     "load_retinal_image",
     "segment_retinal_vessels",
+    "segment_vessels_classical",
     "UNetVesselSegmentation",
     "extract_vessel_features",
     "RETINA_FEATURE_NAMES",
     "RetinalCNNEncoder",
     "predict_retina",
+    "train_vessel_segmentation",
+    "pretrain_retinal_encoder",
+    "evaluate_pd_retina",
+    "train_retinal_pipeline",
+    "run_retina_evaluation",
 ]

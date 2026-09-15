@@ -1,34 +1,48 @@
-dataset_id: "uci_voice"
-name: "UCI Parkinson's Telemonitoring Dataset"
-official_source: "UCI Machine Learning Repository / University of Oxford"
-access_requirements: "None (Open Access)"
-license: "CC BY 4.0"
-category: "B"
+dataset_id: uci_voice
+name: UCI Parkinson's Telemonitoring Dataset
+source: UCI Machine Learning Repository / University of Oxford
+official_source: UCI Machine Learning Repository / University of Oxford
+access_requirements: None (Open Access)
+license: CC BY 4.0
+category: B
+category_name: modality_specific
+category_description: 'Category B: Modality-Specific Dataset (Acoustic speech dysphonia
+  time-series)'
 modalities:
-  - "voice_speech"
-participant_count: "42"
-pd_labels: "42 (Early-stage PD patients monitored over 6 months)"
-prodromal_labels: "0"
-control_labels: "0"
+- voice_speech
+participants: '42'
+participant_count: '42'
+labels:
+  pd: 42 (Early-stage PD patients monitored longitudinally)
+  prodromal: '0'
+  control: '0'
+  summary: Clinician-scored continuous motor_UPDRS (5-40) and total_UPDRS (7-55)
+pd_labels: 42 (Early-stage PD patients monitored over 6 months)
+prodromal_labels: '0'
+control_labels: '0'
 variables:
-  - "subject#"
-  - "age"
-  - "sex"
-  - "test_time"
-  - "motor_UPDRS"
-  - "total_UPDRS"
-  - "Jitter(%)"
-  - "Shimmer"
-  - "NHR"
-  - "HNR"
-  - "RPDE"
-  - "DFA"
-  - "PPE"
+- subject#
+- age
+- sex
+- test_time
+- motor_UPDRS
+- total_UPDRS
+- Jitter(%)
+- Shimmer
+- NHR
+- HNR
+- RPDE
+- DFA
+- PPE
+file_format: CSV
 file_formats:
-  - "CSV"
-missing_data: "Low missingness within acoustic features; uneven recording intervals per patient"
-limitations: "Small subject count (N=42); lacks healthy control group; single modality (voice only)"
-intended_use: "Modality-specific representation learning and regression target prediction for the speech/voice branch"
-local_path: "data/raw/uci_voice/"
-download_instructions: "Download directly from UCI Repository: https://archive.ics.uci.edu/dataset/189/parkinsons+telemonitoring"
-status: "identified"
+- CSV
+missing_data: Low missingness within acoustic features; uneven recording intervals
+  per patient
+limitations: Small subject count (N=42); lacks healthy control group; single modality
+  (voice only)
+intended_use: Modality-specific representation learning and regression target prediction
+  for the speech/voice branch
+local_path: data/raw/uci_voice/
+download_instructions: 'Download directly from UCI Repository: https://archive.ics.uci.edu/dataset/189/parkinsons+telemonitoring'
+status: identified

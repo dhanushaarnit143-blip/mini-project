@@ -83,7 +83,7 @@
     "cv_roc_auc_mean": 1.0
   },
   "seed": 42,
-  "timestamp": "2026-09-13T13:32:34.192093+00:00",
+  "timestamp": "2026-09-15T14:24:25.126483+00:00",
   "limitations": [
     "SIMULATION MODE: Real PhysioNet physionet_gait data not found locally. All metrics computed on SYNTHETIC FIXTURE data (Category E). These metrics have ZERO clinical validity.",
     "physionet_gait (Category B) is the primary motor dataset. It provides VGRF force plate data at 100 Hz from 166 participants (93 PD, 73 Control).",

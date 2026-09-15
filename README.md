@@ -105,24 +105,80 @@ Full architecture specifications: [docs/MODEL_ARCHITECTURE.md](docs/MODEL_ARCHIT
 ## 6. Gated Multimodal Fusion Architecture
 
 ```mermaid
-graph TD
-    A[Participant Input] --> B[Data Validation]
-    B --> C[Olfactory Pipeline]
-    B --> D[RBD Pipeline]
-    B --> E[Voice Pipeline]
-    B --> F[Motor/Gait Pipeline]
-    B --> G[Retinal Pipeline]
-    C --> H[Modality Encoders]
-    D --> H
-    E --> H
-    F --> H
-    G --> H
-    H --> I[Gated Multimodal Fusion]
-    I --> J[Final Risk Classifier]
-    J --> K[Risk Score]
-    J --> L[SHAP Explainability]
-    K --> M[Dashboard]
-    L --> M
+flowchart TD
+    subgraph S1["1. Multimodal Participant Inputs"]
+        I1["Olfactory (UPSIT / CC-SIT, D=5)"]
+        I2["RBD Sleep (13-Item RBDSQ, D=16)"]
+        I3["Voice Acoustics (Sustained /a/, D=16)"]
+        I4["Motor & Gait (Bilateral VGRF, D=8)"]
+        I5["Retina (Fundus Morphometry & CNN, D=28)"]
+        I6["Demographics (Age, Sex, D=2)"]
+    end
+
+    subgraph S2["2. Validation & Physiological Guardrails"]
+        V["Bounds Checking & Preprocessing<br/>• Physiologic Range Clamping<br/>• Out-of-Bounds Warning Flags<br/>• Presence Detection Vector p in {0,1}^5"]
+    end
+
+    I1 --> V
+    I2 --> V
+    I3 --> V
+    I4 --> V
+    I5 --> V
+    I6 --> V
+
+    subgraph S3["3. Modality Encoders & Missing Tokens"]
+        E1["Olfactory MLP Encoder -> e_olf in R^32"]
+        E2["RBD MLP Encoder -> e_rbd in R^32"]
+        E3["Voice MLP Encoder -> e_voi in R^32"]
+        E4["Motor MLP Encoder -> e_mot in R^32"]
+        E5["Retina Projection -> e_ret in R^32"]
+        T["Learnable Missing Tokens t_m in R^32 (Substituted if absent)"]
+        ED["Demographic MLP -> z_demo in R^8"]
+    end
+
+    V --> E1
+    V --> E2
+    V --> E3
+    V --> E4
+    V --> E5
+    V -. Absent .-> T
+    V --> ED
+
+    subgraph S4["4. Dynamic Gated Multimodal Fusion"]
+        ATT["Masked Attention Gating<br/>s_m = v^T tanh(W e_m + b)<br/>Absent Mask: s'_m = -10^9 if p_m = 0<br/>Softmax: alpha_m = exp(s'_m) / sum(exp(s'_k))"]
+        AGG["Weighted Aggregation: z_gated = sum(alpha_m * e_m) in R^32"]
+        CAT["Feature Augmentation & Concat<br/>z_final = [z_gated (32) | z_demo (8) | p (5)] in R^45"]
+    end
+
+    E1 --> ATT
+    E2 --> ATT
+    E3 --> ATT
+    E4 --> ATT
+    E5 --> ATT
+    T --> ATT
+    ATT --> AGG
+    AGG --> CAT
+    ED --> CAT
+    V -- "Presence Flags p" --> CAT
+
+    subgraph S5["5. Risk Estimation & Explainability Engine"]
+        CLF["XGBoost Risk Classifier<br/>(100 Trees, Depth 3, LR 0.05)<br/>Brier Score = 0.0031"]
+        SHAP["TreeSHAP Explainer<br/>Exact Polynomial Attribution<br/>Local Drivers + Modality % Share"]
+        OUT["Calibrated Research Risk Score [0.0, 1.0]<br/>+ Anomaly & Uncertainty Warnings"]
+    end
+
+    CAT --> CLF
+    CAT --> SHAP
+    CLF --> OUT
+
+    subgraph S6["6. Interactive Presentation Layer"]
+        API["FastAPI Backend REST Service<br/>(/health, /predict, /explain, /samples)"]
+        UI["React 18 + Vite + Tailwind CSS Dashboard<br/>• Risk Gauge & Stratification Band<br/>• Interactive Modality Toggles<br/>• Dynamic Gate Weight & SHAP Visualizations"]
+    end
+
+    OUT --> API
+    SHAP --> API
+    API --> UI
 ```
 
 - **Encoder Projection:** Each present modality $\mathbf{x}_m$ is mapped to embedding $\mathbf{e}_m \in \mathbb{R}^{32}$. Absent modalities are substituted with learnable missing token $\mathbf{t}_m$.
@@ -171,19 +227,19 @@ Explainability report: [evaluation/XAI_REPORT.md](evaluation/XAI_REPORT.md).
 
 ## 10. Documentation Suite
 
-Detailed research documentation is organized under the `docs/` directory:
+The complete, comprehensive research documentation suite is available directly in the repository root and mirrored in `docs/`:
 
 | Document | Description |
 | :--- | :--- |
-| 📐 [**PROJECT_ARCHITECTURE.md**](docs/PROJECT_ARCHITECTURE.md) | Repository tree, end-to-end data flow, pipeline schemas, and Mermaid diagram. |
-| 🗃️ [**DATASETS.md**](docs/DATASETS.md) | Catalog of all 8 datasets (PPMI, PhysioNet, UCI, EyePACS), access terms, and provenance. |
-| 🧠 [**MODEL_ARCHITECTURE.md**](docs/MODEL_ARCHITECTURE.md) | Mathematical formulation of MLPs, attention gating, missing tokens, and XGBoost. |
-| 🔬 [**METHODOLOGY.md**](docs/METHODOLOGY.md) | Participant splitting, 6 anti-leakage rules, bounds clamping, and bootstrap CIs. |
-| 🧪 [**EXPERIMENTS.md**](docs/EXPERIMENTS.md) | Detailed experimental protocols for unimodal, fusion, degradation, and stress tests. |
-| 📊 [**RESULTS.md**](docs/RESULTS.md) | Complete quantitative benchmarks, gate weights, calibration curves, and SHAP results. |
-| ⚠️ [**LIMITATIONS.md**](docs/LIMITATIONS.md) | Honest disclosure of synthetic data, missing modalities, demographic biases, and boundaries. |
-| ⚖️ [**ETHICAL_CONSIDERATIONS.md**](docs/ETHICAL_CONSIDERATIONS.md) | Psychological distress, false positives/negatives, privacy, fairness, and clinician oversight. |
-| 🚀 [**DEPLOYMENT.md**](docs/DEPLOYMENT.md) | Local installation, FastAPI backend, React dashboard startup, and production boundaries. |
+| 📐 [**PROJECT_ARCHITECTURE.md**](PROJECT_ARCHITECTURE.md) ([docs](docs/PROJECT_ARCHITECTURE.md)) | Repository tree, end-to-end data flow, pipeline schemas, and Mermaid diagram. |
+| 🗃️ [**DATASETS.md**](DATASETS.md) ([docs](docs/DATASETS.md)) | Catalog of all 8 datasets (PPMI, PhysioNet, UCI, EyePACS), access terms, and provenance. |
+| 🧠 [**MODEL_ARCHITECTURE.md**](MODEL_ARCHITECTURE.md) ([docs](docs/MODEL_ARCHITECTURE.md)) | Mathematical formulation of MLPs, attention gating, missing tokens, and XGBoost. |
+| 🔬 [**METHODOLOGY.md**](METHODOLOGY.md) ([docs](docs/METHODOLOGY.md)) | Participant splitting, 6 anti-leakage rules, bounds clamping, and bootstrap CIs. |
+| 🧪 [**EXPERIMENTS.md**](EXPERIMENTS.md) ([docs](docs/EXPERIMENTS.md)) | Detailed experimental protocols for unimodal, fusion, degradation, and stress tests. |
+| 📊 [**RESULTS.md**](RESULTS.md) ([docs](docs/RESULTS.md)) | Complete quantitative benchmarks, gate weights, calibration curves, and SHAP results. |
+| ⚠️ [**LIMITATIONS.md**](LIMITATIONS.md) ([docs](docs/LIMITATIONS.md)) | Honest disclosure of synthetic data, missing modalities, demographic biases, and boundaries. |
+| ⚖️ [**ETHICAL_CONSIDERATIONS.md**](ETHICAL_CONSIDERATIONS.md) ([docs](docs/ETHICAL_CONSIDERATIONS.md)) | Psychological distress, false positives/negatives, privacy, fairness, and clinician oversight. |
+| 🚀 [**DEPLOYMENT.md**](DEPLOYMENT.md) ([docs](docs/DEPLOYMENT.md)) | Local installation, FastAPI backend, React dashboard startup, and production boundaries. |
 
 ---
 

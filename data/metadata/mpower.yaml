@@ -1,33 +1,47 @@
-dataset_id: "mpower"
-name: "Parkinson Disease Mobile Data Study (mPower)"
-official_source: "Sage Bionetworks / Synapse Platform"
-access_requirements: "Synapse user registration, human subjects research ethics training, and data access request"
-license: "Synapse Qualified Researcher Governance Terms"
-category: "A"
+dataset_id: mpower
+name: Parkinson Disease Mobile Data Study (mPower)
+source: Sage Bionetworks / Synapse Platform
+official_source: Sage Bionetworks / Synapse Platform
+access_requirements: Synapse user registration, human subjects research ethics training,
+  and data access request
+license: Synapse Qualified Researcher Governance Terms
+category: A
+category_name: same_participant_multimodal
+category_description: 'Category A: Same-Participant Multimodal Mobile Data (High-frequency
+  digital biomarker tasks)'
 modalities:
-  - "voice_speech"
-  - "motor_gait"
-  - "motor_tapping"
-  - "cognitive"
-participant_count: "10000+"
-pd_labels: "approx. 3000 (Self-reported PD diagnosis)"
-prodromal_labels: "unknown"
-control_labels: "approx. 7000 (Self-reported controls)"
+- voice_speech
+- motor_gait
+- motor_tapping
+- cognitive
+participants: 10000+
+participant_count: 10000+
+labels:
+  pd: approx. 3000 (Self-reported PD diagnosis)
+  prodromal: unknown
+  control: approx. 7000 (Self-reported controls)
+  summary: Self-reported diagnosis (PD, Control) and medication timing (pre/post dose)
+pd_labels: approx. 3000 (Self-reported PD diagnosis)
+prodromal_labels: unknown
+control_labels: approx. 7000 (Self-reported controls)
 variables:
-  - "recordId"
-  - "healthCode"
-  - "createdOn"
-  - "medTimepoint"
-  - "accel_gait.json"
-  - "tapping_results.json"
-  - "audio_phonation.m4a"
+- recordId
+- healthCode
+- createdOn
+- medTimepoint
+- accel_gait.json
+- tapping_results.json
+- audio_phonation.m4a
+file_format: CSV, JSON, m4a
 file_formats:
-  - "CSV"
-  - "JSON"
-  - "m4a"
-missing_data: "High longitudinal participant attrition; missing task sessions"
-limitations: "Self-reported diagnostic status; variable smartphone sensor quality; high noise"
-intended_use: "Large-scale self-supervised pretraining for mobile digital biomarkers"
-local_path: "data/raw/mpower/"
-download_instructions: "Register at Synapse (https://www.synapse.org/#!Synapse:syn4993293), complete ethics verification, download via Synapse Python client."
-status: "restricted"
+- CSV
+- JSON
+- m4a
+missing_data: High longitudinal participant attrition; missing task sessions
+limitations: Self-reported diagnostic status; variable smartphone sensor quality;
+  high noise
+intended_use: Large-scale self-supervised pretraining for mobile digital biomarkers
+local_path: data/raw/mpower/
+download_instructions: Register at Synapse (https://www.synapse.org/#!Synapse:syn4993293),
+  complete ethics verification, download via Synapse Python client.
+status: restricted

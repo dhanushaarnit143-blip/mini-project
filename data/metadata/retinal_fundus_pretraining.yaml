@@ -1,27 +1,41 @@
-dataset_id: "retinal_fundus_pretraining"
-name: "Retinal Fundus Pretraining Corpus (EyePACS / Messidor-2 / DRIVE / APTOS)"
-official_source: "Kaggle / Grand-Challenge.org / DRiDB"
-access_requirements: "Kaggle user registration and competition terms agreement"
-license: "Custom Academic / Non-Commercial / CC-BY-NC"
-category: "C"
+dataset_id: retinal_fundus_pretraining
+name: Retinal Fundus Pretraining Corpus (EyePACS / Messidor-2 / DRIVE / APTOS)
+source: Kaggle / Grand-Challenge.org / DRiDB
+official_source: Kaggle / Grand-Challenge.org / DRiDB
+access_requirements: Kaggle user registration and competition terms agreement
+license: Custom Academic / Non-Commercial / CC-BY-NC
+category: C
+category_name: pretraining
+category_description: 'Category C: Pretraining Dataset (Retinal fundus photography;
+  CONTAINS NO PD LABELS)'
 modalities:
-  - "retina_fundus"
-participant_count: "40000+"
-pd_labels: "0 (Contains NO Parkinson's disease labels)"
-prodromal_labels: "0"
-control_labels: "0"
+- retina_fundus
+participants: 40000+
+participant_count: 40000+
+labels:
+  pd: 0 (Contains NO Parkinson's disease labels)
+  prodromal: '0'
+  control: '0'
+  summary: Diabetic retinopathy severity grades (0-4) and vessel segmentation masks;
+    NO PD LABELS
+pd_labels: 0 (Contains NO Parkinson's disease labels)
+prodromal_labels: '0'
+control_labels: '0'
 variables:
-  - "image_id"
-  - "eye"
-  - "dr_grade"
-  - "vessel_mask"
+- image_id
+- eye
+- dr_grade
+- vessel_mask
+file_format: JPEG, PNG, TIFF
 file_formats:
-  - "JPEG"
-  - "PNG"
-  - "TIFF"
-missing_data: "Non-uniform image sizing, illumination gradients, media opacities"
-limitations: "Strictly pretraining only; contains diabetic retinopathy and normal eye images but NO Parkinson's clinical labels"
-intended_use: "Pretraining CNN / Vision Transformer backbones for retinal vessel segmentation and feature representation"
-local_path: "data/raw/retinal_fundus_pretraining/"
-download_instructions: "Download via Kaggle CLI: kaggle competitions download -c diabetic-retinopathy-detection"
-status: "pretraining_only"
+- JPEG
+- PNG
+- TIFF
+missing_data: Non-uniform image sizing, illumination gradients, media opacities
+limitations: Strictly pretraining only; contains diabetic retinopathy and normal eye
+  images but NO Parkinson's clinical labels
+intended_use: Pretraining CNN / Vision Transformer backbones for retinal vessel segmentation
+  and feature representation
+local_path: data/raw/retinal_fundus_pretraining/
+download_instructions: 'Download via Kaggle CLI: kaggle competitions download -c diabetic-retinopathy-detection'
+status: pretraining_only

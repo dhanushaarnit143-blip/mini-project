@@ -3,6 +3,8 @@
   "model_type": "logistic_regression",
   "dataset_id": "synthetic_fixture",
   "dataset_category": "E",
+  "experiment_type": "simulation",
+  "not_trained": true,
   "features_used": [
     "rbdsq_total",
     "above_cutoff_flag",
@@ -21,6 +23,137 @@
     "item_12",
     "item_13"
   ],
+  "feature_schema": {
+    "rbdsq_total": {
+      "source": "Sum of RBDSQ binary items 1-13",
+      "range": [
+        0,
+        13
+      ],
+      "missing_strategy": "required"
+    },
+    "above_cutoff_flag": {
+      "source": "derived: 1 if rbdsq_total >= 5",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "derived from rbdsq_total",
+      "note": "Reflects published RBDSQ screening cutoff. NOT equivalent to clinically confirmed RBD diagnosis."
+    },
+    "high_weight_item_flags": {
+      "source": "item_6 (acting out vivid/violent dreams)",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "defaults to 0 when item_6 absent"
+    },
+    "item_1": {
+      "source": "RBDSQ binary item 1",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "NaN propagated; imputed with training-set median"
+    },
+    "item_2": {
+      "source": "RBDSQ binary item 2",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "NaN propagated; imputed with training-set median"
+    },
+    "item_3": {
+      "source": "RBDSQ binary item 3",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "NaN propagated; imputed with training-set median"
+    },
+    "item_4": {
+      "source": "RBDSQ binary item 4",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "NaN propagated; imputed with training-set median"
+    },
+    "item_5": {
+      "source": "RBDSQ binary item 5",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "NaN propagated; imputed with training-set median"
+    },
+    "item_6": {
+      "source": "RBDSQ binary item 6",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "NaN propagated; imputed with training-set median"
+    },
+    "item_7": {
+      "source": "RBDSQ binary item 7",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "NaN propagated; imputed with training-set median"
+    },
+    "item_8": {
+      "source": "RBDSQ binary item 8",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "NaN propagated; imputed with training-set median"
+    },
+    "item_9": {
+      "source": "RBDSQ binary item 9",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "NaN propagated; imputed with training-set median"
+    },
+    "item_10": {
+      "source": "RBDSQ binary item 10",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "NaN propagated; imputed with training-set median"
+    },
+    "item_11": {
+      "source": "RBDSQ binary item 11",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "NaN propagated; imputed with training-set median"
+    },
+    "item_12": {
+      "source": "RBDSQ binary item 12",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "NaN propagated; imputed with training-set median"
+    },
+    "item_13": {
+      "source": "RBDSQ binary item 13",
+      "range": [
+        0,
+        1
+      ],
+      "missing_strategy": "NaN propagated; imputed with training-set median"
+    }
+  },
   "target_label": "diagnosis",
   "training_samples": 210,
   "validation_samples": 45,
@@ -72,14 +205,17 @@
         "class_1": 23
       }
     },
-    "cv_roc_auc_mean": 0.9959
+    "cv_roc_auc_mean": 0.9959,
+    "cv_roc_auc_std": 0.0051
   },
   "seed": 42,
-  "timestamp": "2026-09-15T13:57:38.859731+00:00",
+  "timestamp": "2026-09-15T15:12:30.133364+00:00",
   "limitations": [
     "Age-adjusted RBD risk norms are not published for standard RBDSQ scale; age_adjusted_rbd_risk omitted to avoid fabrication.",
     "If only a subset of RBDSQ items (1-13) is available, item_subscores uses available items and documents missingness.",
+    "above_cutoff_flag uses the RBDSQ >= 5 published screening threshold and does NOT constitute or imply a clinically confirmed RBD diagnosis.",
     "Real RBD data unavailable locally; evaluation generated using synthetic fixture in simulation mode."
   ],
-  "clinical_claim": false
+  "clinical_claim": false,
+  "rbd_diagnosis_claim": false
 }

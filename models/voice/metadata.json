@@ -83,13 +83,14 @@
     "cv_roc_auc_mean": 1.0
   },
   "seed": 42,
-  "timestamp": "2026-09-15T13:57:51.368372+00:00",
+  "timestamp": "2026-09-15T15:12:48.806219+00:00",
   "limitations": [
     "SIMULATION MODE: Real UCI voice data not found locally. All metrics computed on SYNTHETIC FIXTURE data (Category E). These metrics have ZERO clinical validity.",
     "UCI Parkinson's Telemonitoring dataset (uci_voice) has NO healthy controls (all 42 participants are PD patients with longitudinal UPDRS scores). Binary classification is binarized UPDRS severity rather than PD vs. healthy control.",
     "Jitter/shimmer/HNR extracted from UCI CSV (precomputed by original authors) using Praat tools. These are not re-computed here to avoid introducing toolchain discrepancies.",
     "Parselmouth/Praat jitter-shimmer extraction from raw waveform is only attempted when parselmouth is installed; otherwise feature columns are set to NaN.",
     "Spectral features (MFCCs etc.) are computed only when raw audio files are provided. The UCI dataset ships as a precomputed feature CSV \u2014 no raw audio files are distributed.",
+    "Pitch (F0) and pause-related features are extracted via librosa.pyin and librosa.effects.split only for raw audio input (PATH B). They are NOT available from the UCI Telemonitoring tabular CSV, and are NOT used in the tabular training pipeline.",
     "Voice alone is unlikely to be a novel biomarker for PD; contribution is as a component in multimodal fusion (Phase 6).",
     "No clinical claims: all risk scores are research prototype estimates.",
     "Completely synthetic \u2014 ZERO physiological or clinical reality.",

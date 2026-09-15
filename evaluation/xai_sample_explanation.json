@@ -1,6 +1,7 @@
 {
   "participant_id": "SYNTH-PD-001",
   "risk_score": 0.9903,
+  "narrative_explanation": "The model produced a risk score of 0.9903, indicating an elevated Parkinson's risk signal. Primary positive risk drivers: motor (25.2%), olfactory (25.1%), voice (25.1%). Top features increasing risk: fused_gated_1 (SHAP=+3.7486), fused_gated_12 (SHAP=+0.6224), fused_gated_10 (SHAP=+0.1160). Modality 'retina' was absent; learned placeholder tokens were applied and uncertainty is increased.",
   "experiment_type": "prototype_simulation",
   "synthetic_example": true,
   "explanation_method": "shap_tree",

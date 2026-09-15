@@ -278,6 +278,7 @@ class TestRiskScoreBounds:
 REQUIRED_EXPLANATION_KEYS = {
     "participant_id",
     "risk_score",
+    "narrative_explanation",
     "experiment_type",
     "synthetic_example",
     "explanation_method",
@@ -295,28 +296,30 @@ REQUIRED_EXPLANATION_KEYS = {
     "disclaimer",
 }
 
+@pytest.fixture(scope="module")
+def full_explanation(explainer):
+    from src.explainability.local_explanation import explain_single
+    return explain_single(
+        _make_full_input(),
+        participant_id="SYNTH-FULL-001",
+        explainer=explainer,
+        is_synthetic=True,
+    )
+
+
+@pytest.fixture(scope="module")
+def missing_retina_explanation(explainer):
+    from src.explainability.local_explanation import explain_single
+    return explain_single(
+        _make_partial_input(["retina"]),
+        participant_id="SYNTH-NORET-001",
+        explainer=explainer,
+        is_synthetic=True,
+    )
+
+
 class TestLocalExplanationSchema:
     """Explanation objects must conform to Phase 7 schema."""
-
-    @pytest.fixture(scope="class")
-    def full_explanation(self, explainer):
-        from src.explainability.local_explanation import explain_single
-        return explain_single(
-            _make_full_input(),
-            participant_id="SYNTH-FULL-001",
-            explainer=explainer,
-            is_synthetic=True,
-        )
-
-    @pytest.fixture(scope="class")
-    def missing_retina_explanation(self, explainer):
-        from src.explainability.local_explanation import explain_single
-        return explain_single(
-            _make_partial_input(["retina"]),
-            participant_id="SYNTH-NORET-001",
-            explainer=explainer,
-            is_synthetic=True,
-        )
 
     def test_required_keys_present(self, full_explanation):
         missing_keys = REQUIRED_EXPLANATION_KEYS - set(full_explanation.keys())
@@ -396,6 +399,18 @@ class TestLocalExplanationSchema:
         assert abs(total - 1.0) < 0.05, (
             f"Gate weights sum {total:.4f} not close to 1.0"
         )
+
+    def test_narrative_explanation_answers_why(self, full_explanation):
+        narrative = full_explanation["narrative_explanation"]
+        assert isinstance(narrative, str)
+        assert len(narrative) > 20
+        assert "risk score of" in narrative.lower()
+        assert "drivers" in narrative.lower() or "features" in narrative.lower()
+
+    def test_missing_modality_notes_in_narrative(self, missing_retina_explanation):
+        narrative = missing_retina_explanation["narrative_explanation"]
+        assert "retina" in narrative.lower()
+        assert "absent" in narrative.lower() or "uncertainty" in narrative.lower()
 
 
 # ---------------------------------------------------------------------------
@@ -529,21 +544,22 @@ class TestFeatureMapping:
 # Test Group 9: Global importance JSON
 # ---------------------------------------------------------------------------
 
+@pytest.fixture(scope="module")
+def global_data(explainer):
+    from src.explainability.global_importance import compute_global_importance
+    import tempfile, os
+    with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
+        tmp_path = f.name
+    try:
+        data = compute_global_importance(explainer=explainer, n_samples=30, output_path=tmp_path)
+    finally:
+        if os.path.exists(tmp_path):
+            os.unlink(tmp_path)
+    return data
+
+
 class TestGlobalImportanceJSON:
     """Global importance output JSON must be valid and complete."""
-
-    @pytest.fixture(scope="class")
-    def global_data(self, explainer):
-        from src.explainability.global_importance import compute_global_importance
-        import tempfile, os
-        with tempfile.NamedTemporaryFile(suffix=".json", delete=False, mode="w") as f:
-            tmp_path = f.name
-        try:
-            data = compute_global_importance(explainer=explainer, n_samples=30, output_path=tmp_path)
-        finally:
-            if os.path.exists(tmp_path):
-                os.unlink(tmp_path)
-        return data
 
     def test_required_keys(self, global_data):
         required = {

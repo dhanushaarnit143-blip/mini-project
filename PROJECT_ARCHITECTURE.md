@@ -110,7 +110,7 @@ flowchart TD
 ```
 mini project/
 ├── README.md                           # Master project documentation & guide
-├── PROJECT_ARCHITECTURE.md             # System structure and data flow
+├── PROJECT_ARCHITECTURE.md             # System structure and data flow (this document)
 ├── DATASETS.md                         # Dataset catalog, licensing, and cohorts
 ├── MODEL_ARCHITECTURE.md               # Mathematical formulation of encoders & fusion
 ├── METHODOLOGY.md                      # Experimental design, splitting, leakage prevention

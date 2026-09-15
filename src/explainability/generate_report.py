@@ -218,6 +218,10 @@ def generate_markdown_report(
         f"**Research Risk Estimate:** `{sample_score:.4f}` (elevated risk signal)  ",
         f"**Missing modalities:** `{sample_missing if sample_missing else 'none'}`  ",
         "",
+        "### Explanation Narrative: *Why did the model produce this risk score?*",
+        "",
+        f"> {sample_explanation.get('narrative_explanation', '')}",
+        "",
         "### Top-5 features by |SHAP|:",
         "",
         "| Feature | Group | SHAP Value | Direction |",
@@ -244,6 +248,49 @@ def generate_markdown_report(
             f"| `{m['modality']}` | {m['importance']:.5f} | {m['percent_contribution']:.1f}% | "
             f"{arrow} {m['direction']} | {miss} |"
         )
+
+    pos_contributors = sample_explanation.get("positive_contributors", [])[:5]
+    neg_contributors = sample_explanation.get("negative_contributors", [])[:5]
+
+    lines += [
+        "",
+        "### Positive Contributors (Features increasing risk):",
+        "",
+        "| Feature | Group | SHAP Value | Feature Value |",
+        "|---|---|---|---|",
+    ]
+    if pos_contributors:
+        for feat in pos_contributors:
+            lines.append(
+                f"| `{feat['feature_name']}` | `{feat['modality_group']}` | `{feat['shap_value']:+.4f}` | `{feat['feature_value']}` |"
+            )
+    else:
+        lines.append("| *None* | - | - | - |")
+
+    lines += [
+        "",
+        "### Negative Contributors (Features decreasing risk):",
+        "",
+        "| Feature | Group | SHAP Value | Feature Value |",
+        "|---|---|---|---|",
+    ]
+    if neg_contributors:
+        for feat in neg_contributors:
+            lines.append(
+                f"| `{feat['feature_name']}` | `{feat['modality_group']}` | `{feat['shap_value']:+.4f}` | `{feat['feature_value']}` |"
+            )
+    else:
+        lines.append("| *None (all active features increased risk for this sample)* | - | - | - |")
+
+    missing_notes = sample_explanation.get("missing_modality_notes", [])
+    if missing_notes:
+        lines += [
+            "",
+            "### Missing Modality Information:",
+            "",
+        ]
+        for note in missing_notes:
+            lines.append(f"- {note}")
 
     lines += [
         "",

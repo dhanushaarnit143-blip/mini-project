@@ -1,41 +1,54 @@
-dataset_id: "physionet_gait"
-name: "Gait in Parkinson's Disease Dataset"
-official_source: "PhysioNet / Tel-Aviv Sourasky Medical Center"
-access_requirements: "None (Open Access with standard citation)"
-license: "Open Data Commons Attribution License (ODC-By) v1.0"
-category: "B"
+dataset_id: physionet_gait
+name: Gait in Parkinson's Disease Dataset
+source: PhysioNet / Tel-Aviv Sourasky Medical Center
+official_source: PhysioNet / Tel-Aviv Sourasky Medical Center
+access_requirements: None (Open Access with standard citation)
+license: Open Data Commons Attribution License (ODC-By) v1.0
+category: B
+category_name: modality_specific
+category_description: 'Category B: Modality-Specific Dataset (Bilateral foot force
+  sensor VGRF time-series)'
 modalities:
-  - "motor_gait"
-participant_count: "166"
-pd_labels: "93 (Parkinson's Disease patients)"
-prodromal_labels: "0"
-control_labels: "73 (Healthy Controls)"
+- motor_gait
+participants: '166'
+participant_count: '166'
+labels:
+  pd: 93 (Clinically diagnosed Parkinson's Disease patients)
+  prodromal: '0'
+  control: 73 (Healthy Controls)
+  summary: Binary PD vs Control diagnosis, Hoehn & Yahr staging, UPDRS motor scores
+pd_labels: 93 (Parkinson's Disease patients)
+prodromal_labels: '0'
+control_labels: 73 (Healthy Controls)
 variables:
-  - "Time"
-  - "L1"
-  - "L2"
-  - "L3"
-  - "L4"
-  - "L5"
-  - "L6"
-  - "L7"
-  - "L8"
-  - "R1"
-  - "R2"
-  - "R3"
-  - "R4"
-  - "R5"
-  - "R6"
-  - "R7"
-  - "R8"
-  - "Total_Force_Left"
-  - "Total_Force_Right"
+- Time
+- L1
+- L2
+- L3
+- L4
+- L5
+- L6
+- L7
+- L8
+- R1
+- R2
+- R3
+- R4
+- R5
+- R6
+- R7
+- R8
+- Total_Force_Left
+- Total_Force_Right
+file_format: TXT, CSV
 file_formats:
-  - "TXT"
-  - "CSV"
-missing_data: "Minimal frame loss across 2-minute steady walking recordings"
-limitations: "Single-modality gait force time-series; recorded under controlled laboratory conditions; no non-motor labels"
-intended_use: "Modality-specific pretraining and feature extraction evaluation for the gait/motor branch"
-local_path: "data/raw/physionet_gait/"
-download_instructions: "Download from PhysioNet: https://physionet.org/content/gaitpdb/1.0.0/"
-status: "identified"
+- TXT
+- CSV
+missing_data: Minimal frame loss across 2-minute steady walking recordings
+limitations: Single-modality gait force time-series; recorded under controlled laboratory
+  conditions; no non-motor labels
+intended_use: Modality-specific pretraining and feature extraction evaluation for
+  the gait/motor branch
+local_path: data/raw/physionet_gait/
+download_instructions: 'Download from PhysioNet: https://physionet.org/content/gaitpdb/1.0.0/'
+status: identified

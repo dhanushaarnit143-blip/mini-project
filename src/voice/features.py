@@ -12,7 +12,10 @@ Two feature extraction pathways:
   PATH B — Raw Audio (librosa):
     extract_spectral_features(audio, sr)
     Computes MFCCs, delta-MFCCs, spectral centroid, bandwidth, rolloff,
-    spectral contrast, and zero-crossing rate from a raw waveform.
+    spectral contrast, zero-crossing rate, pitch (mean F0, std F0,
+    voiced_fraction via librosa.pyin), and pause-related features (n_pauses,
+    pause_ratio, mean_pause_duration_sec, speech_rate_sps via librosa.effects.split)
+    from a raw waveform.
     Used when audio files are available (e.g., mPower m4a recordings).
 
   PATH C — Parselmouth / Praat jitter/shimmer:
@@ -85,11 +88,29 @@ TABULAR_FEATURE_NAMES = list(UCI_FEATURE_RENAMED.values())
 
 # Spectral feature names (PATH B)
 N_MFCC = 13
+
+# Pitch feature names (PATH B — requires librosa.pyin)
+PITCH_FEATURE_NAMES = [
+    "pitch_mean_hz",    # Mean fundamental frequency (voiced frames only)
+    "pitch_std_hz",     # Std of fundamental frequency (voiced frames)
+    "voiced_fraction",  # Fraction of frames detected as voiced
+]
+
+# Pause-related feature names (PATH B — requires librosa.effects.split)
+PAUSE_FEATURE_NAMES = [
+    "n_pauses",                # Number of pause segments detected
+    "pause_ratio",             # Fraction of total duration that is silence/pause
+    "mean_pause_duration_sec", # Mean pause duration in seconds
+    "speech_rate_sps",         # Speech rate: voiced segments per second of total audio
+]
+
 SPECTRAL_FEATURE_NAMES = (
     [f"mfcc_{i}" for i in range(N_MFCC)]
     + [f"mfcc_delta_{i}" for i in range(N_MFCC)]
     + ["spectral_centroid", "spectral_bandwidth", "spectral_rolloff",
        "spectral_contrast_mean", "zero_crossing_rate"]
+    + PITCH_FEATURE_NAMES
+    + PAUSE_FEATURE_NAMES
 )
 
 # Combined feature list when both paths are available
@@ -106,6 +127,9 @@ VOICE_LIMITATIONS = [
     "when parselmouth is installed; otherwise feature columns are set to NaN.",
     "Spectral features (MFCCs etc.) are computed only when raw audio files are provided. "
     "The UCI dataset ships as a precomputed feature CSV — no raw audio files are distributed.",
+    "Pitch (F0) and pause-related features are extracted via librosa.pyin and "
+    "librosa.effects.split only for raw audio input (PATH B). They are NOT available "
+    "from the UCI Telemonitoring tabular CSV, and are NOT used in the tabular training pipeline.",
     "Voice alone is unlikely to be a novel biomarker for PD; "
     "contribution is as a component in multimodal fusion (Phase 6).",
     "No clinical claims: all risk scores are research prototype estimates.",
@@ -158,7 +182,8 @@ def extract_spectral_features(
     n_mfcc: int = N_MFCC,
 ) -> Dict[str, Any]:
     """
-    Extract spectral and cepstral features from a raw audio array using librosa.
+    Extract spectral, cepstral, pitch, and pause-related features from a raw audio
+    array using librosa.
 
     Features:
       - MFCCs (mean across time, n_mfcc coefficients)
@@ -168,6 +193,12 @@ def extract_spectral_features(
       - Spectral rolloff (mean)
       - Spectral contrast (mean across bands → scalar)
       - Zero-crossing rate (mean)
+      - Pitch / F0 (mean Hz, std Hz, voiced_fraction) — via librosa.pyin
+      - Pause features (n_pauses, pause_ratio, mean_pause_duration_sec,
+        speech_rate_sps) — via librosa.effects.split
+
+    Pitch and pause features are extracted in separate try/except blocks so that
+    a failure in one does NOT prevent the others from being computed.
 
     Args:
         audio: 1-D float32 audio array (mono, preprocessed).
@@ -215,6 +246,48 @@ def extract_spectral_features(
         # Zero-crossing rate
         zcr = librosa.feature.zero_crossing_rate(y=audio)
         features["zero_crossing_rate"] = float(np.mean(zcr))
+
+        # ── Pitch features (librosa.pyin) ────────────────────────────────
+        try:
+            f0, voiced_flag, _ = librosa.pyin(
+                audio,
+                fmin=librosa.note_to_hz("C2"),   # ~65 Hz — below typical speech
+                fmax=librosa.note_to_hz("C7"),   # ~2093 Hz — above typical speech
+                sr=sr,
+            )
+            voiced_f0 = f0[voiced_flag.astype(bool)] if voiced_flag is not None else f0[~np.isnan(f0)]
+            voiced_f0 = voiced_f0[~np.isnan(voiced_f0)]
+
+            features["pitch_mean_hz"] = float(np.mean(voiced_f0)) if len(voiced_f0) > 0 else np.nan
+            features["pitch_std_hz"] = float(np.std(voiced_f0)) if len(voiced_f0) > 0 else np.nan
+            features["voiced_fraction"] = float(np.mean(voiced_flag)) if voiced_flag is not None else np.nan
+        except Exception as exc_pitch:
+            logger.warning("Pitch (pyin) extraction failed: %s. Features set to NaN.", exc_pitch)
+            for name in PITCH_FEATURE_NAMES:
+                features.setdefault(name, np.nan)
+
+        # ── Pause-related features (librosa.effects.split) ───────────────
+        try:
+            intervals = librosa.effects.split(audio, top_db=20, frame_length=2048, hop_length=512)
+            total_duration = len(audio) / sr if sr > 0 else 1.0
+
+            n_pauses = max(0, len(intervals) - 1)
+            speech_samples = sum(int(e) - int(s) for s, e in intervals) if len(intervals) > 0 else 0
+            speech_duration = speech_samples / sr if sr > 0 else 0.0
+            pause_duration_total = max(0.0, total_duration - speech_duration)
+            pause_ratio = pause_duration_total / total_duration if total_duration > 0 else 0.0
+            mean_pause_dur = pause_duration_total / n_pauses if n_pauses > 0 else 0.0
+            # Speech rate: number of voiced speech segments per second of total audio
+            speech_rate_sps = len(intervals) / total_duration if total_duration > 0 else 0.0
+
+            features["n_pauses"] = float(n_pauses)
+            features["pause_ratio"] = float(pause_ratio)
+            features["mean_pause_duration_sec"] = float(mean_pause_dur)
+            features["speech_rate_sps"] = float(speech_rate_sps)
+        except Exception as exc_pause:
+            logger.warning("Pause feature extraction failed: %s. Features set to NaN.", exc_pause)
+            for name in PAUSE_FEATURE_NAMES:
+                features.setdefault(name, np.nan)
 
     except Exception as exc:
         logger.error("Spectral feature extraction failed: %s", exc)

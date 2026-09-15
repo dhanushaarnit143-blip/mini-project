@@ -202,9 +202,18 @@ def explain_single(
     # ------------------------------------------------------------------
     # 8. Assemble explanation object
     # ------------------------------------------------------------------
+    narrative_explanation = _generate_narrative_explanation(
+        risk_score=risk_score,
+        important_modalities=important_modalities,
+        positive_contributors=positive_contributors,
+        negative_contributors=negative_contributors,
+        missing_modalities=missing_modalities,
+    )
+
     explanation = {
         "participant_id": participant_id,
         "risk_score": risk_score,
+        "narrative_explanation": narrative_explanation,
         "experiment_type": explainer.experiment_type,
         "synthetic_example": is_synthetic,
         "explanation_method": explainer.explanation_method,
@@ -273,6 +282,50 @@ def _determine_direction(
         return "negative"
     else:
         return "mixed"
+
+
+def _generate_narrative_explanation(
+    risk_score: float,
+    important_modalities: List[Dict[str, Any]],
+    positive_contributors: List[Dict[str, Any]],
+    negative_contributors: List[Dict[str, Any]],
+    missing_modalities: List[str],
+) -> str:
+    """
+    Generate a concise narrative answering: 'Why did the model produce this risk score?'
+    """
+    risk_level = "elevated Parkinson's risk signal" if risk_score >= 0.5 else "standard / low risk signal"
+    parts = [f"The model produced a risk score of {risk_score:.4f}, indicating an {risk_level}."]
+
+    pos_mods = [m for m in important_modalities if m["direction"] == "positive" and not m["missing"]]
+    neg_mods = [m for m in important_modalities if m["direction"] == "negative" and not m["missing"]]
+
+    if pos_mods:
+        top_pos = ", ".join(f"{m['modality']} ({m['percent_contribution']:.1f}%)" for m in pos_mods[:3])
+        parts.append(f"Primary positive risk drivers: {top_pos}.")
+    if neg_mods:
+        top_neg = ", ".join(f"{m['modality']} ({m['percent_contribution']:.1f}%)" for m in neg_mods[:3])
+        parts.append(f"Risk was counterbalanced by: {top_neg}.")
+
+    if positive_contributors:
+        top_feats = ", ".join(
+            f"{f['feature_name']} (SHAP={f['shap_value']:+.4f})" for f in positive_contributors[:3]
+        )
+        parts.append(f"Top features increasing risk: {top_feats}.")
+    if negative_contributors:
+        top_neg_feats = ", ".join(
+            f"{f['feature_name']} (SHAP={f['shap_value']:+.4f})" for f in negative_contributors[:3]
+        )
+        parts.append(f"Top features decreasing risk: {top_neg_feats}.")
+
+    if missing_modalities:
+        parts.append(
+            f"Modality '{', '.join(missing_modalities)}' was absent; learned placeholder tokens were applied and uncertainty is increased."
+        )
+    else:
+        parts.append("All 5 assessment modalities were present.")
+
+    return " ".join(parts)
 
 
 def save_sample_explanation(

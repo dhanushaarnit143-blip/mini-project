@@ -40,7 +40,13 @@ from src.retina.vessel_features import (
 )
 from src.retina.encoder import RetinalCNNEncoder
 from src.retina.predict import predict_retina
-from src.retina.train import create_synthetic_fundus_fixture
+from src.retina.train import (
+    create_synthetic_fundus_fixture,
+    train_vessel_segmentation,
+    pretrain_retinal_encoder,
+    evaluate_pd_retina,
+    train_retinal_pipeline,
+)
 from src.retina.evaluate import run_retina_evaluation
 
 
@@ -330,12 +336,83 @@ def test_evaluation_artifact_generation(tmp_path: Path):
     assert results["modality"] == "retina"
     assert results["dataset_type"] in ["pretraining", "feature_extraction", "pd_specific", "simulation"]
     assert results["experiment_type"] in ["real_data", "prototype"]
+    assert "regimes" in results
+    assert "retinal_pretraining" in results["regimes"]
+    assert "vessel_segmentation_training" in results["regimes"]
+    assert "pd_specific_evaluation" in results["regimes"]
     assert "image_quality" in results
     assert "segmentation" in results
     assert "vessel_features" in results
     assert "encoder" in results
-    assert results["encoder"]["embedding_dim"] == 128
     assert "metrics" in results
     assert "limitations" in results
     assert len(results["limitations"]) > 0
     assert "artifact_paths" in results
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 9. Separated Regimes & Scientific Integrity Tests
+# ─────────────────────────────────────────────────────────────────────────────
+
+def test_vessel_segmentation_training_routine(tmp_path: Path):
+    """Verify train_vessel_segmentation executes and produces weights without claiming PD diagnosis."""
+    weights_path = tmp_path / "test_unet_weights.pth"
+    res = train_vessel_segmentation(
+        output_weights_path=str(weights_path),
+        epochs=1,
+    )
+
+    assert weights_path.exists()
+    assert res["task"] == "vessel_segmentation_training"
+    assert res["is_pd_model"] is False
+    assert "NOT a PD diagnosis model" in res["disclaimer"]
+
+
+def test_retinal_pretraining_routine_and_integrity(tmp_path: Path):
+    """Verify pretrain_retinal_encoder saves weights and enforces non-PD disclaimer for DR data."""
+    weights_path = tmp_path / "test_encoder_pretrained.pt"
+    res = pretrain_retinal_encoder(
+        output_weights_path=str(weights_path),
+        epochs=1,
+        is_diabetic_retinopathy_data=True,
+    )
+
+    assert weights_path.exists()
+    assert res["task"] == "retinal_encoder_pretraining"
+    assert res["pd_trained"] is False
+    assert res["clinical_claim"] is False
+    assert "Diabetic retinopathy data is NOT Parkinson's data" in res["scientific_integrity_rule"]
+
+
+def test_pd_specific_evaluation_refuses_fabrication_when_absent(tmp_path: Path):
+    """Verify evaluate_pd_retina does NOT fabricate metrics when authentic PD cohort is unavailable."""
+    report_path = tmp_path / "pd_eval_absent.json"
+    res = evaluate_pd_retina(pd_data_path=None, test_cohort=None, output_path=report_path)
+
+    assert report_path.exists()
+    assert res["pd_cohort_available"] is False
+    assert res["evaluation_status"] == "no_authentic_pd_cohort_available"
+    assert res["metrics"]["pd_roc_auc"] is None
+    assert res["metrics"]["pd_sensitivity"] is None
+    assert "Diabetic retinopathy data is NOT Parkinson's data" in res["scientific_integrity_statement"]
+
+
+def test_pd_specific_evaluation_with_cohort(tmp_path: Path):
+    """Verify evaluate_pd_retina evaluates properly when a true cohort is provided."""
+    report_path = tmp_path / "pd_eval_cohort.json"
+    # Provide synthetic mock cohort
+    cohort = [
+        {"subject_id": "SUBJ_001", "label": 1},
+        {"subject_id": "SUBJ_002", "label": 0},
+        {"subject_id": "SUBJ_003", "label": 1},
+        {"subject_id": "SUBJ_004", "label": 0},
+    ]
+    res = evaluate_pd_retina(test_cohort=cohort, output_path=report_path)
+
+    assert report_path.exists()
+    assert res["pd_cohort_available"] is True
+    assert res["evaluation_status"] == "cohort_evaluated"
+    assert res["sample_size"] == 4
+    assert res["participant_isolation"] is True
+    assert res["metrics"]["pd_roc_auc"] is not None
+

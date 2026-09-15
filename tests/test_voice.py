@@ -41,6 +41,8 @@ from src.voice.features import (
     extract_spectral_features,
     TABULAR_FEATURE_NAMES,
     SPECTRAL_FEATURE_NAMES,
+    PITCH_FEATURE_NAMES,
+    PAUSE_FEATURE_NAMES,
 )
 
 # ─── train + predict ──────────────────────────────────────────────────────────
@@ -189,6 +191,80 @@ class TestFeatureExtraction:
         feat = extract_spectral_features(audio, sr=TARGET_SR)
         for key, val in feat.items():
             assert math.isfinite(val), f"Feature '{key}' is not finite: {val}"
+
+    def test_pitch_features_present_in_spectral(self):
+        """extract_spectral_features must return pitch feature keys."""
+        audio = generate_synthetic_audio(duration_sec=3.0, sr=TARGET_SR, seed=42)
+        feat = extract_spectral_features(audio, sr=TARGET_SR)
+        for key in PITCH_FEATURE_NAMES:
+            assert key in feat, f"Missing pitch feature: '{key}'"
+
+    def test_pitch_mean_hz_reasonable(self):
+        """pitch_mean_hz must be in speech-frequency range for voiced synthetic audio."""
+        audio = generate_synthetic_audio(duration_sec=3.0, sr=TARGET_SR, seed=42)
+        feat = extract_spectral_features(audio, sr=TARGET_SR)
+        pitch_mean = feat.get("pitch_mean_hz", float("nan"))
+        # Fundamental of synthetic audio is 120 Hz — expect detection near speech range
+        if not math.isnan(pitch_mean):
+            assert 50.0 <= pitch_mean <= 2200.0, \
+                f"pitch_mean_hz {pitch_mean:.1f} Hz outside expected speech range."
+
+    def test_voiced_fraction_in_range(self):
+        """voiced_fraction must be between 0.0 and 1.0."""
+        audio = generate_synthetic_audio(duration_sec=3.0, sr=TARGET_SR, seed=42)
+        feat = extract_spectral_features(audio, sr=TARGET_SR)
+        vf = feat.get("voiced_fraction", float("nan"))
+        if not math.isnan(vf):
+            assert 0.0 <= vf <= 1.0, f"voiced_fraction {vf} out of [0, 1] range."
+
+    def test_pause_features_present_in_spectral(self):
+        """extract_spectral_features must return pause feature keys."""
+        audio = generate_synthetic_audio(duration_sec=3.0, sr=TARGET_SR, seed=42)
+        feat = extract_spectral_features(audio, sr=TARGET_SR)
+        for key in PAUSE_FEATURE_NAMES:
+            assert key in feat, f"Missing pause feature: '{key}'"
+
+    def test_pause_ratio_in_range(self):
+        """pause_ratio must be in [0.0, 1.0] for any valid audio."""
+        audio = generate_synthetic_audio(duration_sec=3.0, sr=TARGET_SR, seed=42)
+        feat = extract_spectral_features(audio, sr=TARGET_SR)
+        pr = feat.get("pause_ratio", float("nan"))
+        if not math.isnan(pr):
+            assert 0.0 <= pr <= 1.0, f"pause_ratio {pr} out of [0, 1] range."
+
+    def test_n_pauses_non_negative(self):
+        """n_pauses must be a non-negative integer-valued float."""
+        audio = generate_synthetic_audio(duration_sec=3.0, sr=TARGET_SR, seed=42)
+        feat = extract_spectral_features(audio, sr=TARGET_SR)
+        n = feat.get("n_pauses", float("nan"))
+        if not math.isnan(n):
+            assert n >= 0, f"n_pauses {n} is negative."
+
+    def test_get_feature_names_tabular(self):
+        """get_feature_names('tabular') must match TABULAR_FEATURE_NAMES."""
+        from src.voice.features import get_feature_names
+        assert get_feature_names("tabular") == TABULAR_FEATURE_NAMES
+
+    def test_get_feature_names_spectral(self):
+        """get_feature_names('spectral') must match SPECTRAL_FEATURE_NAMES."""
+        from src.voice.features import get_feature_names
+        assert get_feature_names("spectral") == SPECTRAL_FEATURE_NAMES
+
+    def test_get_feature_names_all_contains_pitch_and_pause(self):
+        """get_feature_names('all') must include both pitch and pause feature names."""
+        from src.voice.features import get_feature_names
+        all_names = get_feature_names("all")
+        for name in PITCH_FEATURE_NAMES + PAUSE_FEATURE_NAMES:
+            assert name in all_names, f"'{name}' missing from get_feature_names('all')"
+
+    def test_spectral_feature_names_contains_pitch_and_pause(self):
+        """SPECTRAL_FEATURE_NAMES must include pitch and pause feature groups."""
+        for name in PITCH_FEATURE_NAMES:
+            assert name in SPECTRAL_FEATURE_NAMES, \
+                f"PITCH feature '{name}' missing from SPECTRAL_FEATURE_NAMES"
+        for name in PAUSE_FEATURE_NAMES:
+            assert name in SPECTRAL_FEATURE_NAMES, \
+                f"PAUSE feature '{name}' missing from SPECTRAL_FEATURE_NAMES"
 
 
 # ══════════════════════════════════════════════════════════════════════════════

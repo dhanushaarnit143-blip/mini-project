@@ -2,15 +2,25 @@
 Dataset Registry Module for MPF-PD.
 
 Provides metadata loading, metadata validation, lookup by dataset ID,
-and category filtering across metadata YAML files in data/metadata/.
+category filtering (by code or semantic name), and modality coverage inspection
+across metadata YAML files in data/metadata/.
 """
 
 import os
 from pathlib import Path
-from typing import Dict, List, Any
+from typing import Dict, List, Any, Optional
 import yaml
 
 VALID_CATEGORIES = {"A", "B", "C", "D", "E"}
+CATEGORY_NAME_MAP = {
+    "A": "same_participant_multimodal",
+    "B": "modality_specific",
+    "C": "pretraining",
+    "D": "external_validation",
+    "E": "synthetic_fixture",
+}
+CATEGORY_CODE_MAP = {v: k for k, v in CATEGORY_NAME_MAP.items()}
+
 VALID_STATUSES = {
     "identified",
     "accessible",
@@ -20,19 +30,24 @@ VALID_STATUSES = {
     "synthetic_fixture",
 }
 
+# Core required metadata fields (ensures compatibility with prompt and existing codebase)
 REQUIRED_METADATA_FIELDS = [
     "dataset_id",
     "name",
+    "source",
     "official_source",
     "access_requirements",
     "license",
     "category",
     "modalities",
+    "participants",
     "participant_count",
+    "labels",
     "pd_labels",
     "prodromal_labels",
     "control_labels",
     "variables",
+    "file_format",
     "file_formats",
     "missing_data",
     "limitations",
@@ -86,6 +101,11 @@ def validate_dataset_metadata(metadata: Dict[str, Any]) -> bool:
     if not isinstance(metadata.get("modalities"), list):
         raise ValueError(
             f"'modalities' must be a list in dataset metadata '{metadata.get('dataset_id')}'."
+        )
+
+    if not isinstance(metadata.get("variables"), list):
+        raise ValueError(
+            f"'variables' must be a list in dataset metadata '{metadata.get('dataset_id')}'."
         )
 
     return True
@@ -142,23 +162,49 @@ def get_dataset_metadata(dataset_id: str, metadata_dir: str = "data/metadata") -
 
 def list_datasets_by_category(category: str, metadata_dir: str = "data/metadata") -> List[str]:
     """
-    List dataset_ids belonging to a specific category (A, B, C, D, E).
+    List dataset_ids belonging to a specific category (by letter code A-E or semantic name).
 
     Args:
-        category: Category string ('A', 'B', 'C', 'D', 'E').
+        category: Category string ('A', 'B', 'C', 'D', 'E') or semantic name
+                  ('same_participant_multimodal', 'modality_specific', 'pretraining',
+                   'external_validation', 'synthetic_fixture').
         metadata_dir: Directory path containing metadata YAML files.
 
     Returns:
         list: List of dataset_ids matching the category.
     """
-    if category not in VALID_CATEGORIES:
+    cat_code = category
+    if category in CATEGORY_CODE_MAP:
+        cat_code = CATEGORY_CODE_MAP[category]
+
+    if cat_code not in VALID_CATEGORIES:
         raise ValueError(
-            f"Invalid category '{category}'. Must be one of {sorted(list(VALID_CATEGORIES))}."
+            f"Invalid category '{category}'. Must be one of {sorted(list(VALID_CATEGORIES))} "
+            f"or {sorted(list(CATEGORY_NAME_MAP.values()))}."
         )
 
     registry = load_dataset_registry(metadata_dir=metadata_dir)
     return [
         dataset_id
         for dataset_id, meta in registry.items()
-        if meta.get("category") == category
+        if meta.get("category") == cat_code
+    ]
+
+
+def list_datasets_by_modality(modality: str, metadata_dir: str = "data/metadata") -> List[str]:
+    """
+    List all dataset_ids providing a specific biomarker modality.
+
+    Args:
+        modality: Modality name (e.g. 'olfactory', 'rbd_sleep', 'voice_speech', 'motor_gait', 'retina_fundus').
+        metadata_dir: Directory path containing metadata YAML files.
+
+    Returns:
+        list: List of dataset_ids providing the modality.
+    """
+    registry = load_dataset_registry(metadata_dir=metadata_dir)
+    return [
+        dataset_id
+        for dataset_id, meta in registry.items()
+        if modality in meta.get("modalities", [])
     ]

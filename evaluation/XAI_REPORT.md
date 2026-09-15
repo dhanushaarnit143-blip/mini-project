@@ -1,6 +1,6 @@
 # MPF-PD Phase 7 — XAI Explainability Report
 
-> **Generated:** 2026-09-15 04:26 UTC  
+> **Generated:** 2026-09-15 14:57 UTC  
 > **Experiment type:** `prototype_simulation`  
 > **Model:** Gated Multimodal Fusion → XGBoost Classifier  
 
@@ -115,6 +115,10 @@ Modality-level importance is derived by:
 **Research Risk Estimate:** `0.9903` (elevated risk signal)  
 **Missing modalities:** `['retina']`  
 
+### Explanation Narrative: *Why did the model produce this risk score?*
+
+> The model produced a risk score of 0.9903, indicating an elevated Parkinson's risk signal. Primary positive risk drivers: motor (25.2%), olfactory (25.1%), voice (25.1%). Top features increasing risk: fused_gated_1 (SHAP=+3.7486), fused_gated_12 (SHAP=+0.6224), fused_gated_10 (SHAP=+0.1160). Modality 'retina' was absent; learned placeholder tokens were applied and uncertainty is increased.
+
 ### Top-5 features by |SHAP|:
 
 | Feature | Group | SHAP Value | Direction |
@@ -134,6 +138,26 @@ Modality-level importance is derived by:
 | `voice` | 1.15682 | 25.1% | ↑ positive | No |
 | `rbd` | 1.13869 | 24.7% | ↑ positive | No |
 | `retina` | 0.00000 | 0.0% | ~ mixed | ⚠ YES |
+
+### Positive Contributors (Features increasing risk):
+
+| Feature | Group | SHAP Value | Feature Value |
+|---|---|---|---|
+| `fused_gated_1` | `fused_gated_representation` | `+3.7486` | `0.2296` |
+| `fused_gated_12` | `fused_gated_representation` | `+0.6224` | `0.365` |
+| `fused_gated_10` | `fused_gated_representation` | `+0.1160` | `0.3268` |
+| `fused_gated_9` | `fused_gated_representation` | `+0.0911` | `-0.2169` |
+| `fused_gated_13` | `fused_gated_representation` | `+0.0383` | `-0.6461` |
+
+### Negative Contributors (Features decreasing risk):
+
+| Feature | Group | SHAP Value | Feature Value |
+|---|---|---|---|
+| *None (all active features increased risk for this sample)* | - | - | - |
+
+### Missing Modality Information:
+
+- Retina input missing; model relied more heavily on available modalities. Missing modalities increase uncertainty in the research risk estimate.
 
 ---
 

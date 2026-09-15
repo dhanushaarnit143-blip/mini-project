@@ -4,6 +4,45 @@
   "dataset_id": "synthetic_fixture",
   "dataset_type": "simulation",
   "experiment_type": "prototype",
+  "regimes": {
+    "retinal_pretraining": {
+      "backbone": "resnet18",
+      "embedding_dim": 128,
+      "pretrained": false,
+      "weights_available": true,
+      "pd_trained": false,
+      "sample_embedding_norm": 11.3446,
+      "sample_embedding_mean": 0.0001,
+      "sample_embedding_std": 1.0027,
+      "pretraining_purpose": "General ophthalmic visual feature representation",
+      "scientific_integrity_notice": "Diabetic retinopathy data is NOT Parkinson's data. Pretrained weights represent general retinal feature extraction, NOT PD diagnosis."
+    },
+    "vessel_segmentation_training": {
+      "methods_benchmarked": [
+        "classical_morphological_heuristic",
+        "unet_deep_learning"
+      ],
+      "primary_method_used": "classical_morphological_heuristic",
+      "unet_weights_available": true,
+      "heuristic_notice": "Baseline heuristic vessel filter; not a clinically certified segmentation network.",
+      "classical_vessel_density": 0.0724,
+      "classical_vessel_pixel_count": 2749,
+      "unet_vessel_pixel_count": 0,
+      "fov_pixel_count": 37976,
+      "task_scope": "Delineation of retinal microvasculature for morphometry. NOT a PD diagnostic model."
+    },
+    "pd_specific_evaluation": {
+      "pd_cohort_available": false,
+      "status": "no_authentic_pd_cohort_available",
+      "metrics": {
+        "pd_roc_auc": null,
+        "pd_sensitivity": null,
+        "pd_specificity": null,
+        "pd_balanced_accuracy": null
+      },
+      "scientific_integrity_rule": "Zero clinical claims. No PD metrics are fabricated. Diabetic retinopathy or general fundus data cannot be substituted for Parkinson's disease evaluation."
+    }
+  },
   "image_quality": {
     "total_evaluated_images": 3,
     "passed_qc_count": 1,
@@ -20,11 +59,13 @@
       "unet_deep_learning"
     ],
     "primary_method_used": "classical_morphological_heuristic",
+    "unet_weights_available": true,
     "heuristic_notice": "Baseline heuristic vessel filter; not a clinically certified segmentation network.",
     "classical_vessel_density": 0.0724,
     "classical_vessel_pixel_count": 2749,
-    "unet_vessel_pixel_count": 37976,
-    "fov_pixel_count": 37976
+    "unet_vessel_pixel_count": 0,
+    "fov_pixel_count": 37976,
+    "task_scope": "Delineation of retinal microvasculature for morphometry. NOT a PD diagnostic model."
   },
   "vessel_features": [
     "vessel_density",
@@ -58,10 +99,13 @@
     "backbone": "resnet18",
     "embedding_dim": 128,
     "pretrained": false,
+    "weights_available": true,
     "pd_trained": false,
-    "sample_embedding_norm": 11.3136,
-    "sample_embedding_mean": -0.0,
-    "sample_embedding_std": 1.0
+    "sample_embedding_norm": 11.3446,
+    "sample_embedding_mean": 0.0001,
+    "sample_embedding_std": 1.0027,
+    "pretraining_purpose": "General ophthalmic visual feature representation",
+    "scientific_integrity_notice": "Diabetic retinopathy data is NOT Parkinson's data. Pretrained weights represent general retinal feature extraction, NOT PD diagnosis."
   },
   "metrics": {
     "validation_status": "pipeline_interface_verified",
@@ -69,8 +113,15 @@
     "qc_pass_rate_test_fixtures": 0.3333,
     "vessel_extraction_success": true,
     "embedding_extraction_success": true,
-    "note": "No PD classification metrics reported because no Parkinson's-specific retinal labels exist locally."
+    "note": "No PD classification metrics reported because no authentic Parkinson's-specific retinal cohort exists locally."
   },
+  "scientific_integrity_rules": [
+    "Diabetic retinopathy data is NOT Parkinson's data.",
+    "Retinal pretraining captures general ophthalmic texture/structure, NOT Parkinson's pathology.",
+    "Vessel segmentation provides microvascular morphometry, NOT a clinical diagnosis.",
+    "If no authentic clinical Parkinson's retinal cohort exists, zero PD metrics are fabricated.",
+    "Outputs are research prototype representations for downstream multimodal fusion."
+  ],
   "limitations": [
     "PROTOTYPE / SIMULATION: Real Parkinson's-specific retinal dataset is not available locally. No PD metrics are fabricated.",
     "Pretraining datasets (EyePACS, Messidor-2, DRIVE) contain diabetic retinopathy or normal eye images, NOT Parkinson's labels.",
@@ -81,8 +132,10 @@
     "No clinical claims: outputs are research prototype representations only."
   ],
   "artifact_paths": {
-    "model_metadata_path": "models\\retina\\metadata.json",
-    "results_json_path": "evaluation\\retina_results.json",
-    "fixture_path": "models\\retina\\synthetic_fundus_fixture.png"
+    "model_metadata_path": "models/retina/metadata.json",
+    "results_json_path": "evaluation/retina_results.json",
+    "fixture_path": "models/retina/synthetic_fundus_fixture.png",
+    "unet_weights_path": "models/retina/unet_vessel_weights.pth",
+    "encoder_weights_path": "models/retina/retinal_encoder_pretrained.pt"
   }
 }

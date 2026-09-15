@@ -1,37 +1,53 @@
-dataset_id: "ppmi"
-name: "Parkinson's Progression Markers Initiative"
-official_source: "Michael J. Fox Foundation / LONI Image Data Archive"
-access_requirements: "Account registration, research plan submission, and signed PPMI Data Use Agreement (DUA)"
-license: "PPMI Data Use Agreement"
-category: "A"
+dataset_id: ppmi
+name: Parkinson's Progression Markers Initiative
+source: Michael J. Fox Foundation / LONI Image Data Archive
+official_source: Michael J. Fox Foundation / LONI Image Data Archive
+access_requirements: Account registration, research plan submission, and signed PPMI
+  Data Use Agreement (DUA)
+license: PPMI Data Use Agreement
+category: A
+category_name: same_participant_multimodal
+category_description: 'Category A: Same-Participant Multimodal Data (True same-subject
+  longitudinal multi-modality cohort)'
 modalities:
-  - "olfactory"
-  - "rbd_sleep"
-  - "motor_gait"
-  - "voice_speech"
-  - "biospecimens"
-  - "imaging"
-participant_count: "4000+"
-pd_labels: "approx. 1500 (De Novo & Genetic PD)"
-prodromal_labels: "approx. 600 (RBD, Hyposmia, Genetic Risk)"
-control_labels: "approx. 800 (Healthy Controls)"
+- olfactory
+- rbd_sleep
+- motor_gait
+- voice_speech
+- biospecimens
+- imaging
+participants: 4000+
+participant_count: 4000+
+labels:
+  pd: approx. 1500 (De Novo & Genetic PD)
+  prodromal: approx. 600 (RBD, Hyposmia, Genetic Risk)
+  control: approx. 800 (Healthy Controls)
+  summary: 'Clinical diagnosis: PD, Prodromal (RBD/Hyposmia), Healthy Control, SWEDD'
+pd_labels: approx. 1500 (De Novo & Genetic PD)
+prodromal_labels: approx. 600 (RBD, Hyposmia, Genetic Risk)
+control_labels: approx. 800 (Healthy Controls)
 variables:
-  - "PATNO"
-  - "EVENT_ID"
-  - "UPSIT_TOTAL"
-  - "RBDSQ_TOTAL"
-  - "NP3TOT"
-  - "DATSCAN_CAUDATE_R"
-  - "DATSCAN_PUTAMEN_R"
-  - "DIAGNOSIS"
+- PATNO
+- EVENT_ID
+- UPSIT_TOTAL
+- RBDSQ_TOTAL
+- NP3TOT
+- DATSCAN_CAUDATE_R
+- DATSCAN_PUTAMEN_R
+- DIAGNOSIS
+file_format: CSV, Parquet, DICOM, NIfTI
 file_formats:
-  - "CSV"
-  - "Parquet"
-  - "DICOM"
-  - "NIfTI"
-missing_data: "Longitudinal attrition, optional sub-study non-completion, visit window missingness"
-limitations: "Complex schema changes across annual data releases; restricted access for specific bio-assays (e.g. SAA)"
-intended_use: "Primary dataset for prototype training, multimodal fusion development, and longitudinal validation"
-local_path: "data/raw/ppmi/"
-download_instructions: "Apply at https://www.ppmi-info.org/access-data-specimens/download-data, sign DUA, download tabular CSVs via LONI portal."
-status: "restricted"
+- CSV
+- Parquet
+- DICOM
+- NIfTI
+missing_data: Longitudinal attrition, optional sub-study non-completion, visit window
+  missingness
+limitations: Complex schema changes across annual data releases; restricted access
+  for specific bio-assays (e.g. SAA)
+intended_use: Primary dataset for prototype training, multimodal fusion development,
+  and longitudinal validation
+local_path: data/raw/ppmi/
+download_instructions: Apply at https://www.ppmi-info.org/access-data-specimens/download-data,
+  sign DUA, download tabular CSVs via LONI portal.
+status: restricted

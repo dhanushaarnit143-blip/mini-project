@@ -1,6 +1,6 @@
 {
   "phase": 7,
-  "generated_at": "2026-09-15T04:26:51.895717+00:00",
+  "generated_at": "2026-09-15T14:57:45.486939+00:00",
   "explanation_method": "shap_tree",
   "model_type": "XGBClassifier",
   "dataset_used": "synthetic_fixture_prototype_simulation",

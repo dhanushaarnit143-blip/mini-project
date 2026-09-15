@@ -3,6 +3,7 @@
   "modality": "olfactory",
   "dataset_id": "synthetic_fixture",
   "experiment_type": "simulation",
+  "not_trained": true,
   "models_compared": [
     "logistic_regression",
     "random_forest",
@@ -57,7 +58,8 @@
           "class_1": 23
         }
       },
-      "cv_roc_auc_mean": 1.0
+      "cv_roc_auc_mean": 1.0,
+      "cv_roc_auc_std": 0.0
     },
     "random_forest": {
       "validation": {
@@ -106,7 +108,8 @@
           "class_1": 23
         }
       },
-      "cv_roc_auc_mean": 0.9991
+      "cv_roc_auc_mean": 0.9991,
+      "cv_roc_auc_std": 0.0011
     },
     "xgboost": {
       "validation": {
@@ -155,7 +158,8 @@
           "class_1": 23
         }
       },
-      "cv_roc_auc_mean": 0.9991
+      "cv_roc_auc_mean": 0.9991,
+      "cv_roc_auc_std": 0.0018
     }
   },
   "features_used": [
@@ -165,6 +169,48 @@
     "n_errors",
     "error_pattern_flags"
   ],
+  "feature_schema": {
+    "total_score": {
+      "source": "UPSIT raw score",
+      "range": [
+        0,
+        40
+      ],
+      "missing_strategy": "required"
+    },
+    "pct_correct": {
+      "source": "derived: total_score / 40",
+      "range": [
+        0.0,
+        1.0
+      ],
+      "missing_strategy": "derived from total_score"
+    },
+    "response_time_mean": {
+      "source": "per-item response time (seconds), if recorded",
+      "range": [
+        0.0,
+        null
+      ],
+      "missing_strategy": "imputed with training-set median"
+    },
+    "n_errors": {
+      "source": "derived: 40 - total_score, or explicit column",
+      "range": [
+        0,
+        40
+      ],
+      "missing_strategy": "derived from total_score"
+    },
+    "error_pattern_flags": {
+      "source": "count of high-risk odor misidentifications (0-5)",
+      "range": [
+        0,
+        5
+      ],
+      "missing_strategy": "defaults to 0 when column absent"
+    }
+  },
   "limitations": [
     "Age-adjusted normative tables (e.g., Doty UPSIT age/sex percentiles) are not available in public tabular export without proprietary tables; age_adjusted_score omitted to prevent data fabrication.",
     "If raw item-level responses (1-40) are absent, error_pattern_flags represents a summary flag of high-risk odor errors.",

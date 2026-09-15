@@ -262,6 +262,7 @@
     "Jitter/shimmer/HNR extracted from UCI CSV (precomputed by original authors) using Praat tools. These are not re-computed here to avoid introducing toolchain discrepancies.",
     "Parselmouth/Praat jitter-shimmer extraction from raw waveform is only attempted when parselmouth is installed; otherwise feature columns are set to NaN.",
     "Spectral features (MFCCs etc.) are computed only when raw audio files are provided. The UCI dataset ships as a precomputed feature CSV \u2014 no raw audio files are distributed.",
+    "Pitch (F0) and pause-related features are extracted via librosa.pyin and librosa.effects.split only for raw audio input (PATH B). They are NOT available from the UCI Telemonitoring tabular CSV, and are NOT used in the tabular training pipeline.",
     "Voice alone is unlikely to be a novel biomarker for PD; contribution is as a component in multimodal fusion (Phase 6).",
     "No clinical claims: all risk scores are research prototype estimates.",
     "Completely synthetic \u2014 ZERO physiological or clinical reality.",

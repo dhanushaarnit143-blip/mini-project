@@ -1,28 +1,43 @@
-dataset_id: "oct500"
-name: "OCT500 Retinal Optical Coherence Tomography Dataset"
-official_source: "Nanjing University of Science and Technology / IEEE DataPort"
-access_requirements: "Academic email registration and non-commercial end-user agreement"
-license: "Academic Non-Commercial License"
-category: "C"
+dataset_id: oct500
+name: OCT500 Retinal Optical Coherence Tomography Dataset
+source: Nanjing University of Science and Technology / IEEE DataPort
+official_source: Nanjing University of Science and Technology / IEEE DataPort
+access_requirements: Academic email registration and non-commercial end-user agreement
+license: Academic Non-Commercial License
+category: C
+category_name: pretraining
+category_description: 'Category C: Pretraining Dataset (Retinal OCT/OCTA volumetric
+  scans; CONTAINS NO PD LABELS)'
 modalities:
-  - "retina_oct"
-  - "retina_octa"
-participant_count: "500"
-pd_labels: "0 (Contains NO Parkinson's disease labels)"
-prodromal_labels: "0"
-control_labels: "0"
+- retina_oct
+- retina_octa
+participants: '500'
+participant_count: '500'
+labels:
+  pd: 0 (Contains NO Parkinson's disease labels)
+  prodromal: '0'
+  control: '0'
+  summary: Ophthalmic pathology labels (AMD, DR, CNV, Normal) and 6-layer retinal
+    segmentations; NO PD LABELS
+pd_labels: 0 (Contains NO Parkinson's disease labels)
+prodromal_labels: '0'
+control_labels: '0'
 variables:
-  - "subject_id"
-  - "oct_volume"
-  - "foveal_thickness"
-  - "retinal_nerve_fiber_layer_mask"
+- subject_id
+- oct_volume
+- foveal_thickness
+- retinal_nerve_fiber_layer_mask
+file_format: MAT, NIfTI, PNG
 file_formats:
-  - "MAT"
-  - "NIfTI"
-  - "PNG"
-missing_data: "Low SNR frames in deeper choroidal scans"
-limitations: "Contains retinal disease labels (AMD, DR, CNV) but NO Parkinson's disease labels; small sample size (N=500)"
-intended_use: "Pretraining 3D OCT layer segmentation and retinal nerve fiber layer (RNFL) encoder models"
-local_path: "data/raw/oct500/"
-download_instructions: "Register at http://mmlab.eecs.umich.edu/oct500/ and request download link."
-status: "pretraining_only"
+- MAT
+- NIfTI
+- PNG
+missing_data: Low SNR frames in deeper choroidal scans
+limitations: Contains retinal disease labels (AMD, DR, CNV) but NO Parkinson's disease
+  labels; small sample size (N=500)
+intended_use: Pretraining 3D OCT layer segmentation and retinal nerve fiber layer
+  (RNFL) encoder models
+local_path: data/raw/oct500/
+download_instructions: Register at http://mmlab.eecs.umich.edu/oct500/ and request
+  download link.
+status: pretraining_only

@@ -4,6 +4,16 @@ RBD Model Training and Artifact Generation Pipeline for MPF-PD.
 Trains Logistic Regression, Random Forest, and XGBoost models on RBD features.
 Enforces training-set fitting of scalers/imputers, zero data leakage,
 saves model artifacts and metadata, and exports evaluation JSON results.
+
+Experiment types:
+  real_data  — trained on PPMI / PREDICT-PD RBDSQ data (requires local CSV).
+  simulation — trained on clearly-labelled synthetic fixture; all outputs
+               carry experiment_type='simulation' and not_trained=True in
+               metadata to prevent accidental clinical use.
+
+IMPORTANT: Models trained here predict RBD RISK from questionnaire data.
+           They do NOT constitute and MUST NOT be interpreted as a clinical
+           RBD diagnosis. PSG confirmation is required for diagnosis.
 """
 
 import os
@@ -32,6 +42,7 @@ from src.rbd.preprocess import (
 from src.rbd.features import (
     extract_rbd_features,
     get_rbd_feature_names,
+    FEATURE_SCHEMA,
     RBD_LIMITATIONS,
 )
 from src.rbd.evaluate import compute_evaluation_metrics
@@ -44,8 +55,16 @@ def run_rbd_pipeline(
     """
     Executes the complete RBD ML training, evaluation, and artifact saving pipeline.
 
+    When real data is not available locally the pipeline falls back to a
+    clearly-labelled synthetic fixture.  All artifacts produced in this mode
+    carry ``experiment_type='simulation'`` and ``not_trained=True`` so they
+    cannot be mistaken for results on real clinical data.
+
+    Models predict RBD screening risk from RBDSQ questionnaire scores.
+    They do NOT constitute a clinical RBD diagnosis.
+
     Args:
-        data_path: Path to real dataset CSV file.
+        data_path: Path to real dataset CSV file (PPMI RBDSQ export).
         seed: Random seed for reproducibility.
 
     Returns:
@@ -58,11 +77,13 @@ def run_rbd_pipeline(
     df_raw, experiment_type = load_rbd_data(data_path)
     dataset_id = "ppmi" if experiment_type == "real_data" else "synthetic_fixture"
     dataset_category = "A" if experiment_type == "real_data" else "E"
+    # not_trained: outputs should not be used as trained model claims without real data
+    not_trained: bool = experiment_type != "real_data"
 
     # 2. Preprocess & validate schema
     df_clean = preprocess_rbd_data(df_raw)
 
-    # 3. Participant-level split
+    # 3. Participant-level split (zero leakage enforced inside)
     df_train, df_val, df_test = split_rbd_data(
         df_clean, test_size=0.15, val_size=0.15, seed=seed
     )
@@ -78,7 +99,7 @@ def run_rbd_pipeline(
     y_val = df_val["diagnosis"].values
     y_test = df_test["diagnosis"].values
 
-    # 5. Fit imputer and scaler strictly on TRAINING set
+    # 5. Fit imputer and scaler strictly on TRAINING set — no leakage
     imputer = SimpleImputer(strategy="median")
     scaler = StandardScaler()
 
@@ -105,10 +126,10 @@ def run_rbd_pipeline(
         ),
     }
 
-    results = {}
-    best_model_name = None
-    best_val_score = -1.0
-    best_pipeline = None
+    results: Dict[str, Any] = {}
+    best_model_name: str | None = None
+    best_val_score: float = -1.0
+    best_pipeline: Dict[str, Any] | None = None
 
     cv = StratifiedKFold(n_splits=5, shuffle=True, random_state=seed)
 
@@ -138,10 +159,10 @@ def run_rbd_pipeline(
             "cv_roc_auc_std": round(float(np.std(cv_scores)), 4),
             "validation_metrics": val_metrics,
             "test_metrics": test_metrics,
-            "model_object": model
+            "model_object": model,
         }
 
-        # Model selection score
+        # Model selection: validation ROC-AUC (or F1 fallback)
         score = val_metrics["roc_auc"] if val_metrics["roc_auc"] is not None else val_metrics["f1"]
         if score > best_val_score:
             best_val_score = score
@@ -161,12 +182,23 @@ def run_rbd_pipeline(
     model_path = models_dir / "model.joblib"
     joblib.dump(best_pipeline, model_path)
 
-    metadata = {
+    limitations = RBD_LIMITATIONS + (
+        [
+            "Real RBD data unavailable locally; evaluation generated using "
+            "synthetic fixture in simulation mode."
+        ]
+        if not_trained else []
+    )
+
+    metadata: Dict[str, Any] = {
         "modality": "rbd",
         "model_type": best_model_name,
         "dataset_id": dataset_id,
         "dataset_category": dataset_category,
+        "experiment_type": experiment_type,
+        "not_trained": not_trained,
         "features_used": features_used,
+        "feature_schema": {k: v for k, v in FEATURE_SCHEMA.items() if k in features_used},
         "target_label": "diagnosis",
         "training_samples": int(len(df_train)),
         "validation_samples": int(len(df_val)),
@@ -175,14 +207,13 @@ def run_rbd_pipeline(
             "validation": results[best_model_name]["validation_metrics"],
             "test": results[best_model_name]["test_metrics"],
             "cv_roc_auc_mean": results[best_model_name]["cv_roc_auc_mean"],
+            "cv_roc_auc_std": results[best_model_name]["cv_roc_auc_std"],
         },
         "seed": seed,
         "timestamp": datetime.datetime.now(datetime.timezone.utc).isoformat(),
-        "limitations": RBD_LIMITATIONS + (
-            ["Real RBD data unavailable locally; evaluation generated using synthetic fixture in simulation mode."]
-            if experiment_type == "simulation" else []
-        ),
+        "limitations": limitations,
         "clinical_claim": False,
+        "rbd_diagnosis_claim": False,
     }
 
     metadata_path = models_dir / "metadata.json"
@@ -194,27 +225,32 @@ def run_rbd_pipeline(
     eval_dir.mkdir(parents=True, exist_ok=True)
     eval_path = eval_dir / "rbd_results.json"
 
-    eval_output = {
+    eval_output: Dict[str, Any] = {
         "phase": 2,
         "modality": "rbd",
         "dataset_id": dataset_id,
         "experiment_type": experiment_type,
+        "not_trained": not_trained,
         "models_compared": list(models.keys()),
         "best_model": best_model_name,
         "metrics": {
             model_name: {
                 "validation": res["validation_metrics"],
                 "test": res["test_metrics"],
-                "cv_roc_auc_mean": res["cv_roc_auc_mean"]
+                "cv_roc_auc_mean": res["cv_roc_auc_mean"],
+                "cv_roc_auc_std": res["cv_roc_auc_std"],
             }
             for model_name, res in results.items()
         },
         "features_used": features_used,
-        "limitations": metadata["limitations"],
+        "feature_schema": {k: v for k, v in FEATURE_SCHEMA.items() if k in features_used},
+        "limitations": limitations,
+        "clinical_claim": False,
+        "rbd_diagnosis_claim": False,
         "artifact_paths": {
             "model_path": str(model_path),
-            "metadata_path": str(metadata_path)
-        }
+            "metadata_path": str(metadata_path),
+        },
     }
 
     with open(eval_path, "w", encoding="utf-8") as f:
@@ -224,13 +260,15 @@ def run_rbd_pipeline(
         "best_model": best_model_name,
         "best_val_score": best_val_score,
         "experiment_type": experiment_type,
+        "not_trained": not_trained,
         "metadata": metadata,
-        "evaluation": eval_output
+        "evaluation": eval_output,
     }
 
 
 if __name__ == "__main__":
     res = run_rbd_pipeline()
-    print(f"RBD pipeline completed successfully!")
+    print("RBD pipeline completed successfully!")
     print(f"Experiment Type: {res['experiment_type']}")
+    print(f"Not Trained (simulation mode): {res['not_trained']}")
     print(f"Best Model: {res['best_model']} (Val Score: {res['best_val_score']})")

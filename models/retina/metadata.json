@@ -9,7 +9,57 @@
   "clinical_claim": false,
   "experiment_type": "prototype",
   "dataset_category": "E",
-  "segmentation_method": "classical_morphological_heuristic",
+  "regimes": {
+    "retinal_pretraining": {
+      "task": "retinal_encoder_pretraining",
+      "backbone": "resnet18",
+      "embedding_dim": 128,
+      "epochs": 2,
+      "final_loss": 0.0001,
+      "loss_history": [
+        0.0005,
+        0.0001
+      ],
+      "weights_saved_to": "models/retina/retinal_encoder_pretrained.pt",
+      "is_diabetic_retinopathy_data": false,
+      "pd_trained": false,
+      "clinical_claim": false,
+      "scientific_integrity_rule": "Diabetic retinopathy data is NOT Parkinson's data. Pretraining provides ophthalmic visual features."
+    },
+    "vessel_segmentation_training": {
+      "task": "vessel_segmentation_training",
+      "model_architecture": "UNetVesselSegmentation",
+      "epochs": 3,
+      "final_loss": 1.3887,
+      "loss_history": [
+        1.5479,
+        1.4411,
+        1.3887
+      ],
+      "weights_saved_to": "models/retina/unet_vessel_weights.pth",
+      "is_pd_model": false,
+      "disclaimer": "Supervised vessel segmentation training; microvascular morphometry only, NOT a PD diagnosis model."
+    },
+    "pd_specific_evaluation": {
+      "task": "pd_specific_retinal_evaluation",
+      "pd_cohort_available": false,
+      "evaluation_status": "no_authentic_pd_cohort_available",
+      "clinical_diagnosis_claim": false,
+      "metrics": {
+        "pd_roc_auc": null,
+        "pd_sensitivity": null,
+        "pd_specificity": null,
+        "pd_balanced_accuracy": null
+      },
+      "scientific_integrity_statement": "Diabetic retinopathy data is NOT Parkinson's data. Without an authentic clinical Parkinson's retinal cohort, no PD classification performance is claimed or fabricated.",
+      "recommendation": "Prospective multimodal data collection with clinically confirmed PD diagnoses and matched healthy controls is required before clinical claims can be evaluated."
+    }
+  },
+  "segmentation_methods": [
+    "classical_morphological_heuristic",
+    "unet_deep_learning"
+  ],
+  "primary_segmentation_method": "classical_morphological_heuristic",
   "vessel_features_extracted": [
     "vessel_density",
     "mean_vessel_diameter_px",
@@ -40,21 +90,21 @@
   },
   "sample_embedding_stats": {
     "dim": 128,
-    "l2_norm": 11.3137,
-    "mean": 0.0,
-    "std": 1.0
+    "l2_norm": 11.3446,
+    "mean": 0.0001,
+    "std": 1.0027
   },
-  "limitations": [
-    "PROTOTYPE MODE: No Parkinson's-specific retinal dataset with clinical labels is available locally or openly.",
-    "Generic fundus pretraining datasets (EyePACS, Messidor-2, DRIVE) contain diabetic retinopathy or normal images, NOT Parkinson's labels.",
-    "OCT datasets (OCT500) contain ophthalmic disease labels, NOT Parkinson's disease labels.",
-    "Vessel segmentation utilizes a deterministic classical morphological heuristic baseline; it is not a clinically validated AI diagnostic device.",
-    "Retinal embeddings and vascular features serve as prototype representations for downstream multimodal fusion.",
-    "Zero clinical validity for Parkinson's diagnosis or screening without prospective clinical validation.",
-    "No clinical claims are made: all risk scores and embeddings are research prototype outputs only."
+  "scientific_integrity_rules": [
+    "Diabetic retinopathy data is NOT Parkinson's data.",
+    "General fundus and OCT datasets are strictly categorized as pretraining / anatomical segmentation resources.",
+    "If no authentic clinical Parkinson's retinal cohort exists, zero PD metrics are fabricated.",
+    "Vessel segmentation provides quantitative microvascular morphology; it does not diagnose Parkinson's disease.",
+    "Outputs are research prototype representations only."
   ],
   "artifact_paths": {
-    "metadata_path": "models\\retina\\metadata.json",
-    "fixture_image_path": "models\\retina\\synthetic_fundus_fixture.png"
+    "metadata_path": "models/retina/metadata.json",
+    "fixture_image_path": "models/retina/synthetic_fundus_fixture.png",
+    "unet_weights_path": "models/retina/unet_vessel_weights.pth",
+    "encoder_weights_path": "models/retina/retinal_encoder_pretrained.pt"
   }
 }

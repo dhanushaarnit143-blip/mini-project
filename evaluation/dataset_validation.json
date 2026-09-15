@@ -96,8 +96,8 @@
     "predict_pd": {
       "dataset_id": "predict_pd",
       "name": "PREDICT-PD Study Cohort",
-      "category_code": "A",
-      "category": "same_participant_multimodal",
+      "category_code": "D",
+      "category": "external_validation",
       "modalities": [
         "olfactory",
         "rbd_sleep",
@@ -147,9 +147,9 @@
       "label_definition": "35 (Synthetic mock PD class) / 30 (Synthetic mock Prodromal class) / 35 (Synthetic mock Control class)",
       "participant_count": "100",
       "missingness": "Controlled synthetic missingness (10% missing values per column)",
-      "access_requirements": "None",
+      "access_requirements": "None (Public internally generated fixture)",
       "license": "MIT License",
-      "local_availability": false,
+      "local_availability": true,
       "intended_use": "Unit testing, continuous integration, and pipeline validation",
       "main_limitation": "Purely synthetic test fixture; contains zero physiological reality or real patient evidence",
       "verified": true
