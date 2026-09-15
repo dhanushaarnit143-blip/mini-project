@@ -1,0 +1,325 @@
+{
+  "phase": 7,
+  "generated_at": "2026-09-15T04:26:51.895717+00:00",
+  "explanation_method": "shap_tree",
+  "model_type": "XGBClassifier",
+  "dataset_used": "synthetic_fixture_prototype_simulation",
+  "experiment_type": "prototype_simulation",
+  "synthetic_example": true,
+  "n_samples_used": 100,
+  "fused_dim": 45,
+  "global_feature_importance": [
+    {
+      "feature_name": "fused_gated_1",
+      "feature_index": 1,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 3.579973
+    },
+    {
+      "feature_name": "fused_gated_12",
+      "feature_index": 12,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.626948
+    },
+    {
+      "feature_name": "fused_gated_10",
+      "feature_index": 10,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.112434
+    },
+    {
+      "feature_name": "fused_gated_9",
+      "feature_index": 9,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.090188
+    },
+    {
+      "feature_name": "fused_gated_13",
+      "feature_index": 13,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.036887
+    },
+    {
+      "feature_name": "fused_gated_0",
+      "feature_index": 0,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_2",
+      "feature_index": 2,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_3",
+      "feature_index": 3,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_4",
+      "feature_index": 4,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_5",
+      "feature_index": 5,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_6",
+      "feature_index": 6,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_7",
+      "feature_index": 7,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_8",
+      "feature_index": 8,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_11",
+      "feature_index": 11,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_14",
+      "feature_index": 14,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_15",
+      "feature_index": 15,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_16",
+      "feature_index": 16,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_17",
+      "feature_index": 17,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_18",
+      "feature_index": 18,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_19",
+      "feature_index": 19,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_20",
+      "feature_index": 20,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_21",
+      "feature_index": 21,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_22",
+      "feature_index": 22,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_23",
+      "feature_index": 23,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_24",
+      "feature_index": 24,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_25",
+      "feature_index": 25,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_26",
+      "feature_index": 26,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_27",
+      "feature_index": 27,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_28",
+      "feature_index": 28,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_29",
+      "feature_index": 29,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_30",
+      "feature_index": 30,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "fused_gated_31",
+      "feature_index": 31,
+      "modality_group": "fused_gated_representation",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "demo_enc_0",
+      "feature_index": 32,
+      "modality_group": "demographic_covariates",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "demo_enc_1",
+      "feature_index": 33,
+      "modality_group": "demographic_covariates",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "demo_enc_2",
+      "feature_index": 34,
+      "modality_group": "demographic_covariates",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "demo_enc_3",
+      "feature_index": 35,
+      "modality_group": "demographic_covariates",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "demo_enc_4",
+      "feature_index": 36,
+      "modality_group": "demographic_covariates",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "demo_enc_5",
+      "feature_index": 37,
+      "modality_group": "demographic_covariates",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "demo_enc_6",
+      "feature_index": 38,
+      "modality_group": "demographic_covariates",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "demo_enc_7",
+      "feature_index": 39,
+      "modality_group": "demographic_covariates",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "presence_olfactory",
+      "feature_index": 40,
+      "modality_group": "presence_olfactory",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "presence_rbd",
+      "feature_index": 41,
+      "modality_group": "presence_rbd",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "presence_voice",
+      "feature_index": 42,
+      "modality_group": "presence_voice",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "presence_motor",
+      "feature_index": 43,
+      "modality_group": "presence_motor",
+      "mean_abs_shap": 0.0
+    },
+    {
+      "feature_name": "presence_retina",
+      "feature_index": 44,
+      "modality_group": "presence_retina",
+      "mean_abs_shap": 0.0
+    }
+  ],
+  "modality_importance": [
+    {
+      "modality": "olfactory",
+      "mean_abs_shap": 0.901824,
+      "percent_contribution": 20.28
+    },
+    {
+      "modality": "motor",
+      "mean_abs_shap": 0.901799,
+      "percent_contribution": 20.28
+    },
+    {
+      "modality": "rbd",
+      "mean_abs_shap": 0.884864,
+      "percent_contribution": 19.9
+    },
+    {
+      "modality": "voice",
+      "mean_abs_shap": 0.883126,
+      "percent_contribution": 19.86
+    },
+    {
+      "modality": "retina",
+      "mean_abs_shap": 0.874818,
+      "percent_contribution": 19.67
+    },
+    {
+      "modality": "demographic_covariates",
+      "mean_abs_shap": 0.0,
+      "percent_contribution": 0.0
+    }
+  ],
+  "shap_base_value": 0.01443,
+  "architecture_note": "The 45-dim fused vector contains a 32-dim gated modality representation (post-attention over all modality embeddings), an 8-dim demographic encoder output, and 5 explicit modality presence flags. Modality-level importance for the gated representation is attributed proportionally to fusion gate weights.",
+  "limitations": [
+    "PROTOTYPE SIMULATION MODE: Global importance computed on synthetic fixture data. Metrics have ZERO clinical validity.",
+    "SHAP values reflect the 45-dim fused representation, not raw biomarker features. Individual feature-level importance (e.g., jitter_pct, vessel_density) is not directly recoverable from fused SHAP without additional attribution.",
+    "Modality-level importance for the gated vector is estimated via gate weights, which are soft attention scores rather than exact SHAP decompositions.",
+    "No clinical claims. All outputs are research prototype estimates only.",
+    "Do not interpret these values as validated biomarker importance rankings."
+  ],
+  "clinical_claim": false
+}

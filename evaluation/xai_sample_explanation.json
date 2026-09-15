@@ -1,0 +1,246 @@
+{
+  "participant_id": "SYNTH-PD-001",
+  "risk_score": 0.9903,
+  "experiment_type": "prototype_simulation",
+  "synthetic_example": true,
+  "explanation_method": "shap_tree",
+  "important_modalities": [
+    {
+      "modality": "motor",
+      "importance": 1.161687,
+      "percent_contribution": 25.16,
+      "direction": "positive",
+      "missing": false
+    },
+    {
+      "modality": "olfactory",
+      "importance": 1.159237,
+      "percent_contribution": 25.11,
+      "direction": "positive",
+      "missing": false
+    },
+    {
+      "modality": "voice",
+      "importance": 1.15682,
+      "percent_contribution": 25.06,
+      "direction": "positive",
+      "missing": false
+    },
+    {
+      "modality": "rbd",
+      "importance": 1.138689,
+      "percent_contribution": 24.67,
+      "direction": "positive",
+      "missing": false
+    },
+    {
+      "modality": "retina",
+      "importance": 0.0,
+      "percent_contribution": 0.0,
+      "direction": "mixed",
+      "missing": true
+    },
+    {
+      "modality": "demographic_covariates",
+      "importance": 0.0,
+      "percent_contribution": 0.0,
+      "direction": "mixed",
+      "missing": false
+    }
+  ],
+  "important_features": [
+    {
+      "feature_name": "fused_gated_1",
+      "feature_index": 1,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 3.748584,
+      "feature_value": 0.2296,
+      "direction": "positive"
+    },
+    {
+      "feature_name": "fused_gated_12",
+      "feature_index": 12,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.62237,
+      "feature_value": 0.365,
+      "direction": "positive"
+    },
+    {
+      "feature_name": "fused_gated_10",
+      "feature_index": 10,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.116021,
+      "feature_value": 0.3268,
+      "direction": "positive"
+    },
+    {
+      "feature_name": "fused_gated_9",
+      "feature_index": 9,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.091139,
+      "feature_value": -0.2169,
+      "direction": "positive"
+    },
+    {
+      "feature_name": "fused_gated_13",
+      "feature_index": 13,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.038318,
+      "feature_value": -0.6461,
+      "direction": "positive"
+    },
+    {
+      "feature_name": "fused_gated_0",
+      "feature_index": 0,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.0,
+      "feature_value": 0.1162,
+      "direction": "negative"
+    },
+    {
+      "feature_name": "fused_gated_2",
+      "feature_index": 2,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.0,
+      "feature_value": -0.2053,
+      "direction": "negative"
+    },
+    {
+      "feature_name": "fused_gated_3",
+      "feature_index": 3,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.0,
+      "feature_value": -0.186,
+      "direction": "negative"
+    },
+    {
+      "feature_name": "fused_gated_4",
+      "feature_index": 4,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.0,
+      "feature_value": 0.0614,
+      "direction": "negative"
+    },
+    {
+      "feature_name": "fused_gated_5",
+      "feature_index": 5,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.0,
+      "feature_value": -0.0443,
+      "direction": "negative"
+    },
+    {
+      "feature_name": "fused_gated_6",
+      "feature_index": 6,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.0,
+      "feature_value": -0.4117,
+      "direction": "negative"
+    },
+    {
+      "feature_name": "fused_gated_7",
+      "feature_index": 7,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.0,
+      "feature_value": -0.2731,
+      "direction": "negative"
+    },
+    {
+      "feature_name": "fused_gated_8",
+      "feature_index": 8,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.0,
+      "feature_value": 0.6531,
+      "direction": "negative"
+    },
+    {
+      "feature_name": "fused_gated_11",
+      "feature_index": 11,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.0,
+      "feature_value": -0.2322,
+      "direction": "negative"
+    },
+    {
+      "feature_name": "fused_gated_14",
+      "feature_index": 14,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.0,
+      "feature_value": 0.0314,
+      "direction": "negative"
+    }
+  ],
+  "positive_contributors": [
+    {
+      "feature_name": "fused_gated_1",
+      "feature_index": 1,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 3.748584,
+      "feature_value": 0.2296,
+      "direction": "positive"
+    },
+    {
+      "feature_name": "fused_gated_12",
+      "feature_index": 12,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.62237,
+      "feature_value": 0.365,
+      "direction": "positive"
+    },
+    {
+      "feature_name": "fused_gated_10",
+      "feature_index": 10,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.116021,
+      "feature_value": 0.3268,
+      "direction": "positive"
+    },
+    {
+      "feature_name": "fused_gated_9",
+      "feature_index": 9,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.091139,
+      "feature_value": -0.2169,
+      "direction": "positive"
+    },
+    {
+      "feature_name": "fused_gated_13",
+      "feature_index": 13,
+      "modality_group": "fused_gated_representation",
+      "shap_value": 0.038318,
+      "feature_value": -0.6461,
+      "direction": "positive"
+    }
+  ],
+  "negative_contributors": [],
+  "missing_modalities": [
+    "retina"
+  ],
+  "missing_modality_notes": [
+    "Retina input missing; model relied more heavily on available modalities. Missing modalities increase uncertainty in the research risk estimate."
+  ],
+  "modality_presence": {
+    "olfactory": true,
+    "rbd": true,
+    "voice": true,
+    "motor": true,
+    "retina": false
+  },
+  "gate_weights": {
+    "olfactory": 0.2511,
+    "rbd": 0.2467,
+    "voice": 0.2506,
+    "motor": 0.2516,
+    "retina": 0.0
+  },
+  "shap_base_value": 0.01443,
+  "shap_sum": 4.616432,
+  "warnings": [
+    "RESEARCH PROTOTYPE: Risk score is an investigational estimate only.",
+    "NOT FOR CLINICAL DIAGNOSIS: No clinical validity is claimed.",
+    "MODEL TRAINED IN SIMULATION MODE: Explanations derived from synthetic fixture training. No clinical validity.",
+    "SYNTHETIC INPUT: This explanation was generated from a clearly-labeled synthetic software test fixture, not real participant data.",
+    "Modality 'retina' was ABSENT: gating unit applied a learned missing token. Uncertainty is increased. Requires clinician review if used in future clinical studies."
+  ],
+  "disclaimer": "This explanation is a research prototype output only. It must not be used for clinical diagnosis. Requires clinician review if used in future clinical studies. All risk scores are research prototype estimates, not clinical findings."
+}
