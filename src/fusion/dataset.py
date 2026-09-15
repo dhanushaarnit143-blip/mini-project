@@ -267,20 +267,20 @@ def split_multimodal_dataset(
     # First split: train vs temp (val + test)
     temp_ratio = val_ratio + test_ratio
     train_pids, temp_pids = train_test_split(
-        unique_participants["participant_id"].values,
+        np.asarray(unique_participants["participant_id"]),
         test_size=temp_ratio,
         random_state=seed,
-        stratify=unique_participants["diagnosis"].values,
+        stratify=np.asarray(unique_participants["diagnosis"]),
     )
 
     # Second split: val vs test
     temp_sub = unique_participants[unique_participants["participant_id"].isin(temp_pids)]
     val_share = val_ratio / temp_ratio
     val_pids, test_pids = train_test_split(
-        temp_sub["participant_id"].values,
+        np.asarray(temp_sub["participant_id"]),
         train_size=val_share,
         random_state=seed,
-        stratify=temp_sub["diagnosis"].values,
+        stratify=np.asarray(temp_sub["diagnosis"]),
     )
 
     train_set = set(train_pids)

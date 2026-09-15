@@ -100,3 +100,9 @@ Thumbs.db
 !README.md
 !config.yaml
 !requirements.txt
+
+# ─── Dashboard Frontend ────────────────────────────────────────────────────
+node_modules/
+dist/
+.vite/
+*.local
