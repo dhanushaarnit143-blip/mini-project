@@ -83,7 +83,7 @@
     "cv_roc_auc_mean": 1.0
   },
   "seed": 42,
-  "timestamp": "2026-09-15T15:12:48.806219+00:00",
+  "timestamp": "2026-09-16T02:26:55.463621+00:00",
   "limitations": [
     "SIMULATION MODE: Real UCI voice data not found locally. All metrics computed on SYNTHETIC FIXTURE data (Category E). These metrics have ZERO clinical validity.",
     "UCI Parkinson's Telemonitoring dataset (uci_voice) has NO healthy controls (all 42 participants are PD patients with longitudinal UPDRS scores). Binary classification is binarized UPDRS severity rather than PD vs. healthy control.",
