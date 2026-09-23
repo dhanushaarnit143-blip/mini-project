@@ -85,7 +85,7 @@ All session tables enforce unique `session_id` idempotency keys generated on mob
 ### 3.4 Longitudinal Aggregation & Inference Tables
 - **`daily_features`**: Daily standardized packaging combining typing, voice, motor, visual, and sleep feature sets with quality scores (`UNIQUE(participant_id, date)`).
 - **`personal_baselines`**: Normative individual baselines computed from 14-day calibration (`modality`, `feature_name`, `baseline_mean`, `baseline_median`, `baseline_std`, `baseline_mad`, `lower_bound`, `upper_bound`, `sample_count`).
-- **`daily_deviations`**: Statistical deviation and trend tracking relative to personal baseline (`deviation_score`, `trend_score`, `quality_score`).
+- **`daily_deviations`**: Statistical deviation and trend tracking relative to personal baseline (`deviation_score`, `trend_score`, `quality_score`, `seven_day_average`, `seven_day_variability`, `fourteen_day_trend`, `sustained_deviation_count`, `missingness_ratio`, `seven_day_quality`, `deviation_classification`, `trend_classification`).
 - **`mpf_predictions`**: Audit log of MPF risk-screening model inference outputs (`risk_score` [0-1], `available_modalities`, `missing_modalities`, `prediction_metadata`).
 - **`model_versions`**: Checkpointed model weights, active status, and validation metrics (`UNIQUE(model_name, version)`). Read-only for participants.
 
