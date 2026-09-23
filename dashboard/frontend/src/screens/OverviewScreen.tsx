@@ -1,6 +1,7 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { ScreenId, CohortParticipant } from '../types';
 import { activeCohortList } from '../data/mockCohort';
+import { fetchCohortParticipants, createCohortParticipant, deleteCohortParticipant } from '../lib/cohortService';
 import { ParticipantComparisonModal } from '../components/ParticipantComparisonModal';
 
 interface OverviewScreenProps {
@@ -15,6 +16,71 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
   const [isProtocolOpen, setIsProtocolOpen] = useState(false);
   const [expandedModality, setExpandedModality] = useState<string | null>(null);
 
+  // Live Supabase Cohort State
+  const [cohortList, setCohortList] = useState<CohortParticipant[]>(activeCohortList);
+  const [isAddParticipantModalOpen, setIsAddParticipantModalOpen] = useState(false);
+  const [newCohortCode, setNewCohortCode] = useState('');
+  const [newAge, setNewAge] = useState(65);
+  const [newSex, setNewSex] = useState<'Male' | 'Female'>('Male');
+  const [newNotes, setNewNotes] = useState('');
+  const [isSavingParticipant, setIsSavingParticipant] = useState(false);
+
+  const loadCohort = async () => {
+    try {
+      const data = await fetchCohortParticipants();
+      if (data && data.length > 0) {
+        setCohortList(data);
+      }
+    } catch (e) {
+      console.warn('Using default cohort list fallback', e);
+    }
+  };
+
+  useEffect(() => {
+    loadCohort();
+  }, []);
+
+  const handleCreateParticipant = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newCohortCode.trim()) return;
+    setIsSavingParticipant(true);
+    try {
+      await createCohortParticipant({
+        cohortCode: newCohortCode.trim(),
+        visitLabel: 'Visit 1 (Baseline)',
+        notes: newNotes.trim() || 'New clinical participant assessment pending',
+        riskIndex: 0.25,
+        riskClass: 'Low Risk Pattern',
+        avatarColor: 'emerald',
+        demographics: {
+          age: Number(newAge),
+          sex: newSex,
+          familyHistory: false,
+          subscores: {
+            olfactory: 30,
+            rbdsq: 2,
+            voiceJitter: 0.45,
+            tappingFrequency: 4.2,
+            retinalOcularDeficit: false,
+          },
+        },
+      });
+      setNewCohortCode('');
+      setNewNotes('');
+      setIsAddParticipantModalOpen(false);
+      await loadCohort();
+    } finally {
+      setIsSavingParticipant(false);
+    }
+  };
+
+  const handleDeleteParticipant = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!window.confirm(`Delete cohort record ${id}?`)) return;
+    await deleteCohortParticipant(id);
+    await loadCohort();
+  };
+
   // Search and Filter State
   const [searchQuery, setSearchQuery] = useState('');
   const [riskFilter, setRiskFilter] = useState<'all' | 'Elevated Pattern' | 'Intermediate' | 'Low Risk Pattern'>('all');
@@ -26,12 +92,12 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
   const [isComparisonModalOpen, setIsComparisonModalOpen] = useState(false);
 
   const participantA = useMemo(
-    () => activeCohortList.find((p) => p.id === selectedForCompare[0]),
-    [selectedForCompare]
+    () => cohortList.find((p) => p.id === selectedForCompare[0]),
+    [selectedForCompare, cohortList]
   );
   const participantB = useMemo(
-    () => activeCohortList.find((p) => p.id === selectedForCompare[1]),
-    [selectedForCompare]
+    () => cohortList.find((p) => p.id === selectedForCompare[1]),
+    [selectedForCompare, cohortList]
   );
 
   const toggleCompareParticipant = (id: string, e?: React.MouseEvent) => {
@@ -65,17 +131,17 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
   // Pre-calculated filter counts
   const filterCounts = useMemo(() => {
     return {
-      all: activeCohortList.length,
-      elevated: activeCohortList.filter(p => p.riskClass === 'Elevated Pattern').length,
-      intermediate: activeCohortList.filter(p => p.riskClass === 'Intermediate').length,
-      low: activeCohortList.filter(p => p.riskClass === 'Low Risk Pattern').length,
-      familyHistory: activeCohortList.filter(p => p.assessmentData.familyHistory).length,
+      all: cohortList.length,
+      elevated: cohortList.filter(p => p.riskClass === 'Elevated Pattern').length,
+      intermediate: cohortList.filter(p => p.riskClass === 'Intermediate').length,
+      low: cohortList.filter(p => p.riskClass === 'Low Risk Pattern').length,
+      familyHistory: cohortList.filter(p => p.assessmentData.familyHistory).length,
     };
-  }, []);
+  }, [cohortList]);
 
   // Filtered and sorted cohort list
   const filteredCohort = useMemo(() => {
-    return activeCohortList
+    return cohortList
       .filter((participant) => {
         // Risk Pattern Filter
         if (riskFilter !== 'all' && participant.riskClass !== riskFilter) {
@@ -107,7 +173,7 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
         if (sortBy === 'id-asc') return a.id.localeCompare(b.id);
         return 0;
       });
-  }, [searchQuery, riskFilter, familyHistoryOnly, sortBy]);
+  }, [cohortList, searchQuery, riskFilter, familyHistoryOnly, sortBy]);
 
   const hasActiveFilters = searchQuery.trim() !== '' || riskFilter !== 'all' || familyHistoryOnly;
 
@@ -603,6 +669,14 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
             </span>
           </div>
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => setIsAddParticipantModalOpen(true)}
+              className="px-2.5 py-1 rounded-lg bg-surface-container hover:bg-surface-container-high text-on-surface font-panchang text-[10px] font-bold flex items-center gap-1 shadow-xs border border-surface-container-high cursor-pointer"
+            >
+              <span className="material-symbols-outlined text-[14px] text-primary">person_add</span>
+              <span>+ Add Participant</span>
+            </button>
             {selectedForCompare.length === 2 && (
               <button
                 type="button"
@@ -921,17 +995,27 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
                       </span>
                       <span className="font-panchang text-[9px] text-on-surface-variant">idx</span>
                     </div>
-                    <span
-                      className={`px-2 py-0.5 rounded-full font-panchang text-[9px] font-bold ${
-                        participant.riskClass === 'Elevated Pattern'
-                          ? 'bg-amber-100 text-amber-900'
-                          : participant.riskClass === 'Low Risk Pattern'
-                          ? 'bg-emerald-100 text-emerald-900'
-                          : 'bg-secondary-container text-on-secondary-container'
-                      }`}
-                    >
-                      {participant.riskClass}
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <span
+                        className={`px-2 py-0.5 rounded-full font-panchang text-[9px] font-bold ${
+                          participant.riskClass === 'Elevated Pattern'
+                            ? 'bg-amber-100 text-amber-900'
+                            : participant.riskClass === 'Low Risk Pattern'
+                            ? 'bg-emerald-100 text-emerald-900'
+                            : 'bg-secondary-container text-on-secondary-container'
+                        }`}
+                      >
+                        {participant.riskClass}
+                      </span>
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteParticipant(participant.id, e)}
+                        title="Delete cohort participant"
+                        className="w-6 h-6 rounded-md flex items-center justify-center text-on-surface-variant hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                      >
+                        <span className="material-symbols-outlined text-[15px]">delete</span>
+                      </button>
+                    </div>
                   </div>
                 </div>
               );
@@ -1047,6 +1131,94 @@ export const OverviewScreen: React.FC<OverviewScreenProps> = ({
           <span>Build 2.4.0-RC1</span>
         </div>
       </footer>
+
+      {/* Add Participant Modal Dialog */}
+      {isAddParticipantModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-150">
+          <div className="relative w-full max-w-md p-6 bg-surface-container-lowest border border-surface-container-high rounded-2xl shadow-xl flex flex-col gap-4">
+            <div className="flex items-center justify-between pb-2 border-b border-surface-container-high">
+              <div className="flex items-center gap-2">
+                <span className="material-symbols-outlined text-[20px] text-primary">person_add</span>
+                <h3 className="font-panchang font-bold text-sm text-on-surface">Add Cohort Participant</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsAddParticipantModalOpen(false)}
+                className="text-on-surface-variant hover:text-on-surface p-1 rounded-lg"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+
+            <form onSubmit={handleCreateParticipant} className="flex flex-col gap-3 text-xs">
+              <div className="flex flex-col gap-1">
+                <label className="font-semibold text-on-surface-variant">Cohort Code / ID</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. #PD-5520"
+                  value={newCohortCode}
+                  onChange={(e) => setNewCohortCode(e.target.value)}
+                  className="px-3 py-2 bg-surface-container-low border border-surface-container rounded-xl text-on-surface focus:outline-hidden focus:ring-2 focus:ring-primary/20"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex flex-col gap-1">
+                  <label className="font-semibold text-on-surface-variant">Age</label>
+                  <input
+                    type="number"
+                    min={18}
+                    max={110}
+                    value={newAge}
+                    onChange={(e) => setNewAge(Number(e.target.value))}
+                    className="px-3 py-2 bg-surface-container-low border border-surface-container rounded-xl text-on-surface focus:outline-hidden"
+                  />
+                </div>
+                <div className="flex flex-col gap-1">
+                  <label className="font-semibold text-on-surface-variant">Biological Sex</label>
+                  <select
+                    value={newSex}
+                    onChange={(e) => setNewSex(e.target.value as 'Male' | 'Female')}
+                    className="px-3 py-2 bg-surface-container-low border border-surface-container rounded-xl text-on-surface focus:outline-hidden"
+                  >
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                  </select>
+                </div>
+              </div>
+
+              <div className="flex flex-col gap-1">
+                <label className="font-semibold text-on-surface-variant">Clinical Notes</label>
+                <textarea
+                  rows={2}
+                  placeholder="e.g. Mild hyposmia, normative sleep"
+                  value={newNotes}
+                  onChange={(e) => setNewNotes(e.target.value)}
+                  className="px-3 py-2 bg-surface-container-low border border-surface-container rounded-xl text-on-surface focus:outline-hidden resize-none"
+                />
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-2 border-t border-surface-container-high">
+                <button
+                  type="button"
+                  onClick={() => setIsAddParticipantModalOpen(false)}
+                  className="px-3 py-1.5 rounded-xl text-on-surface-variant hover:bg-surface-container font-semibold transition-colors"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isSavingParticipant}
+                  className="px-4 py-1.5 rounded-xl bg-primary text-on-primary font-bold shadow-xs hover:bg-primary-container transition-all disabled:opacity-50"
+                >
+                  {isSavingParticipant ? 'Saving to Supabase...' : 'Save to Supabase'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { ScreenId, AssessmentData } from '../types';
+import { saveAssessmentRecord, uploadClinicalFile } from '../lib/cohortService';
 
 interface AssessmentScreenProps {
   assessmentData: AssessmentData;
@@ -16,6 +17,7 @@ export const AssessmentScreen: React.FC<AssessmentScreenProps> = ({
 }) => {
   const [isRunning, setIsRunning] = useState(false);
   const [saveToast, setSaveToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('Assessment draft persisted to Supabase.');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const motorFileInputRef = useRef<HTMLInputElement>(null);
   const retinalFileInputRef = useRef<HTMLInputElement>(null);
@@ -27,7 +29,7 @@ export const AssessmentScreen: React.FC<AssessmentScreenProps> = ({
     });
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       onUpdateAssessmentData({
@@ -36,10 +38,12 @@ export const AssessmentScreen: React.FC<AssessmentScreenProps> = ({
         isVoiceUploaded: true,
         voiceFile: file,
       });
+      // Asynchronously upload to Supabase storage if connected
+      uploadClinicalFile(file, 'voice');
     }
   };
 
-  const handleMotorFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMotorFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       onUpdateAssessmentData({
@@ -47,10 +51,11 @@ export const AssessmentScreen: React.FC<AssessmentScreenProps> = ({
         motorFileName: file.name,
         motorFile: file,
       });
+      uploadClinicalFile(file, 'motor');
     }
   };
 
-  const handleRetinalFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleRetinalFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       onUpdateAssessmentData({
@@ -58,6 +63,7 @@ export const AssessmentScreen: React.FC<AssessmentScreenProps> = ({
         retinalFileName: file.name,
         retinalFile: file,
       });
+      uploadClinicalFile(file, 'ocular');
     }
   };
 
@@ -70,8 +76,15 @@ export const AssessmentScreen: React.FC<AssessmentScreenProps> = ({
     }
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
+    setToastMessage('Saving draft to Supabase...');
     setSaveToast(true);
+    try {
+      await saveAssessmentRecord(assessmentData);
+      setToastMessage('Assessment draft persisted to Supabase.');
+    } catch {
+      setToastMessage('Saved locally (offline mode).');
+    }
     setTimeout(() => {
       setSaveToast(false);
     }, 2400);
@@ -689,7 +702,7 @@ export const AssessmentScreen: React.FC<AssessmentScreenProps> = ({
       {saveToast && (
         <div className="fixed bottom-24 lg:bottom-8 left-1/2 -translate-x-1/2 bg-inverse-surface text-inverse-on-surface px-space-md py-2 rounded-lg font-label-sm text-label-sm flex items-center gap-space-xs shadow-xl z-50 animate-in fade-in slide-in-from-bottom-2">
           <span className="material-symbols-outlined text-[16px] text-tertiary-fixed">task_alt</span>
-          <span>Draft assessment state persisted locally.</span>
+          <span>{toastMessage}</span>
         </div>
       )}
     </div>

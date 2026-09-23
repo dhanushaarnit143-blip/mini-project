@@ -82,6 +82,25 @@ def health_check() -> HealthResponse:
     )
 
 
+@app.get("/api/cohort")
+def list_cohort() -> Dict[str, Any]:
+    """Fetch cohort participants from Supabase."""
+    from dashboard.api.supabase_client import get_cohort_participants
+    participants = get_cohort_participants()
+    return {"cohort": participants, "total": len(participants)}
+
+
+@app.post("/api/cohort")
+async def add_cohort_participant(request: Request) -> Dict[str, Any]:
+    """Add a new participant into Supabase cohort."""
+    from dashboard.api.supabase_client import insert_cohort_participant
+    body = await request.json()
+    created = insert_cohort_participant(body)
+    if not created:
+        return {"status": "created_fallback", "participant": body}
+    return {"status": "success", "participant": created}
+
+
 @app.post("/api/analyze", response_model=AnalysisResponse)
 async def analyze_multimodal(
     request: Request,

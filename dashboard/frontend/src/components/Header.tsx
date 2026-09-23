@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ScreenId } from '../types';
+import { supabase } from '../lib/supabase';
+import { AuthModal } from './AuthModal';
 
 interface HeaderProps {
   currentScreen: ScreenId;
@@ -17,6 +19,27 @@ export const Header: React.FC<HeaderProps> = ({
   isSidebarOpen,
 }) => {
   const [showProfile, setShowProfile] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+
+  const fetchSession = async () => {
+    try {
+      const { data } = await supabase.auth.getSession();
+      setCurrentUser(data.session?.user || null);
+    } catch {
+      setCurrentUser(null);
+    }
+  };
+
+  useEffect(() => {
+    fetchSession();
+    const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setCurrentUser(session?.user || null);
+    });
+    return () => {
+      authListener.subscription.unsubscribe();
+    };
+  }, []);
 
   const getScreenSubtitle = (screen: ScreenId) => {
     switch (screen) {
@@ -58,32 +81,39 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 {/* Logo icon - visible on mobile, subtle on desktop */}
                 <img
-                  alt="MPF-PD Multimodal Fusion Emblem"
-                  className="h-8 w-auto object-contain shrink-0 lg:hidden"
-                  src="https://lh3.googleusercontent.com/aida/AEtjO1VTCTk6dwTtL7MSvNBsD3F31nd21T-yhwzMlp1n50ei159X7W__eBS1VboTHeE3wSfBqHRhv1v8ffPRVsGSOkzgwJN9q70cd46BqmCffVAWrzVqa-HJa6Baj4ZJiHGKANoGmhAVTf5Ev1fMQzaahmAhp34ACrONbNKzmhwOC34Fwely50kAiMheBlVNIAqBp_YMaGaxHEMi82sx39uc1s9t9d_mjTBGfJywy2clLuKJA4-olcEnfryncfs"
+                  src="/icons/brain.svg"
+                  alt="MPF-PD Logo"
+                  className="w-8 h-8 rounded-lg shrink-0 object-contain"
+                  onError={(e) => {
+                    // Fallback to text icon if SVG fails to load
+                    e.currentTarget.style.display = 'none';
+                  }}
                 />
-              <div className="flex flex-col min-w-0">
-                <div className="flex items-center gap-space-xs">
-                  <span className="font-headline-sm text-headline-sm text-on-surface tracking-tight truncate">
-                    MPF-PD
-                  </span>
-                  <span className="px-1.5 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-label-sm text-[10px] tracking-wide whitespace-nowrap">
-                    Protocol v2.4
-                  </span>
-                  <span className="hidden md:inline-flex px-2 py-0.5 rounded-full bg-surface-container text-on-surface-variant font-label-sm text-[10px]">
-                    Site 04 Academic Core
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider truncate">
-                  <span className="text-primary font-bold">{getScreenSubtitle(currentScreen)}</span>
-                  <span className="hidden sm:inline text-outline-variant">•</span>
-                  <span className="hidden sm:inline font-normal normal-case">Cross-Institutional Cohort Validation</span>
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-2">
+                    <h1 className="font-panchang font-bold text-base sm:text-lg tracking-tight text-on-surface truncate">
+                      MPF-PD
+                    </h1>
+                    <span className="hidden sm:inline-block px-1.5 py-0.5 rounded text-[10px] font-mono bg-primary-container/40 text-primary border border-primary/20">
+                      v0.8.0-prodromal
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-1.5 font-label-sm text-label-sm text-on-surface-variant uppercase tracking-wider truncate">
+                    <span className="text-primary font-bold">{getScreenSubtitle(currentScreen)}</span>
+                    <span className="hidden sm:inline text-outline-variant">•</span>
+                    <span className="hidden sm:inline font-normal normal-case">Cross-Institutional Cohort Validation</span>
+                  </div>
                 </div>
               </div>
             </div>
-            </div>
 
             <div className="flex items-center gap-space-sm shrink-0">
+              {/* Supabase live badge */}
+              <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-surface-container-high text-on-surface-variant text-[11px] font-medium border border-surface-container-high">
+                <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>Supabase: mini project</span>
+              </div>
+
               {backendStatus === 'online' ? (
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-300 text-[11px] font-medium shadow-xs">
                   <span className="w-2 h-2 rounded-full bg-emerald-600 animate-pulse"></span>
@@ -103,14 +133,27 @@ export const Header: React.FC<HeaderProps> = ({
                 </div>
               )}
 
-              <button
-                type="button"
-                onClick={() => setShowProfile(!showProfile)}
-                aria-label="Investigator Profile"
-                className="w-8 h-8 rounded-full bg-primary flex items-center justify-center hover:opacity-90 active:scale-95 transition-all shadow-xs"
-              >
-                <span className="material-symbols-outlined text-on-primary text-[18px]">person</span>
-              </button>
+              {currentUser ? (
+                <button
+                  type="button"
+                  onClick={() => setShowProfile(!showProfile)}
+                  aria-label="Investigator Profile"
+                  className="w-8 h-8 rounded-full bg-primary flex items-center justify-center hover:opacity-90 active:scale-95 transition-all shadow-xs text-on-primary font-bold text-xs"
+                  title={currentUser.email}
+                >
+                  {currentUser.email?.charAt(0).toUpperCase()}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsAuthModalOpen(true)}
+                  aria-label="Sign In"
+                  className="px-3 py-1.5 rounded-xl bg-primary text-on-primary text-xs font-semibold hover:opacity-90 active:scale-95 transition-all shadow-xs flex items-center gap-1.5"
+                >
+                  <span className="material-symbols-outlined text-[16px]">login</span>
+                  <span>Sign In</span>
+                </button>
+              )}
             </div>
           </div>
 
@@ -129,7 +172,7 @@ export const Header: React.FC<HeaderProps> = ({
       </header>
 
       {/* Investigator Profile Popover Dialog */}
-      {showProfile && (
+      {showProfile && currentUser && (
         <div 
           className="fixed inset-0 z-50 flex items-start justify-end p-4 pt-24 bg-black/20 backdrop-blur-xs"
           onClick={() => setShowProfile(false)}
@@ -141,11 +184,15 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center justify-between pb-2 border-b border-surface-container-high">
               <div className="flex items-center gap-2">
                 <div className="w-9 h-9 rounded-full bg-primary-fixed text-primary flex items-center justify-center font-bold font-panchang text-xs">
-                  EM
+                  {currentUser.email?.charAt(0).toUpperCase()}
                 </div>
                 <div className="flex flex-col">
-                  <span className="font-panchang text-xs font-bold text-on-surface">Dr. Elena Martinez</span>
-                  <span className="font-label-sm text-[10px] text-on-surface-variant">Lead Neuro-Phenotype PI</span>
+                  <span className="font-panchang text-xs font-bold text-on-surface">
+                    {currentUser.user_metadata?.full_name || 'Clinical Investigator'}
+                  </span>
+                  <span className="font-label-sm text-[10px] text-on-surface-variant truncate max-w-[170px]">
+                    {currentUser.email}
+                  </span>
                 </div>
               </div>
               <button 
@@ -158,32 +205,41 @@ export const Header: React.FC<HeaderProps> = ({
 
             <div className="flex flex-col gap-1.5 text-xs text-on-surface-variant">
               <div className="flex justify-between py-1 bg-surface-container-low px-2 rounded-lg">
-                <span>Site Node:</span>
-                <span className="font-semibold text-on-surface">Site 04 (Academic Core)</span>
+                <span>Database:</span>
+                <span className="font-semibold text-emerald-700">Supabase Connected</span>
               </div>
               <div className="flex justify-between py-1 bg-surface-container-low px-2 rounded-lg">
-                <span>IRB Protocol:</span>
-                <span className="font-semibold text-on-surface">#2024-NEURO-09</span>
+                <span>Project:</span>
+                <span className="font-semibold text-on-surface">mini project</span>
               </div>
               <div className="flex justify-between py-1 bg-surface-container-low px-2 rounded-lg">
-                <span>Cert Status:</span>
-                <span className="font-semibold text-tertiary">HIPAA / GDPR Validated</span>
+                <span>Security:</span>
+                <span className="font-semibold text-tertiary">RLS Active</span>
               </div>
             </div>
 
             <button
               type="button"
-              onClick={() => {
+              onClick={async () => {
+                await supabase.auth.signOut();
+                setCurrentUser(null);
                 setShowProfile(false);
-                onNavigate('overview');
               }}
-              className="mt-1 w-full py-2 rounded-lg bg-surface-container text-on-surface font-panchang text-[11px] font-semibold hover:bg-surface-container-high transition-colors"
+              className="mt-1 w-full py-2 rounded-lg bg-error/10 text-error font-panchang text-[11px] font-semibold hover:bg-error/20 transition-colors"
             >
-              Session Overview
+              Sign Out
             </button>
           </div>
         </div>
       )}
+
+      {/* Auth Modal for Sign In / Sign Up */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        currentUser={currentUser}
+        onAuthChange={fetchSession}
+      />
     </>
   );
 };

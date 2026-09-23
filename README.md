@@ -37,9 +37,10 @@
 12. [Dataset Setup Instructions](#12-dataset-setup-instructions)
 13. [Training Instructions](#13-training-instructions)
 14. [Evaluation Instructions](#14-evaluation-instructions)
-15. [Interactive Web Dashboard](#15-interactive-web-dashboard)
-16. [Key Research Limitations](#16-key-research-limitations)
-17. [Research Disclaimer & Citation](#17-research-disclaimer--citation)
+15. [Interactive Web Dashboard & Supabase Integration](#15-interactive-web-dashboard--supabase-integration)
+16. [Supabase Backend Architecture](#16-supabase-backend-architecture)
+17. [Key Research Limitations](#17-key-research-limitations)
+18. [Research Disclaimer & Citation](#18-research-disclaimer--citation)
 
 ---
 
@@ -323,11 +324,16 @@ Generated metrics, calibration curves, gate weight plots, and leakage audit file
 
 ---
 
-## 15. Interactive Web Dashboard
+## 15. Interactive Web Dashboard & Supabase Integration
 
-Launch the full-stack research interface to explore interactive predictions, toggle missing modalities, and view SHAP explanations:
+Launch the full-stack research interface with live Supabase authentication, database synchronization, and model inference:
 
 ```bash
+# Configure Environment Variables
+# Copy example environment configurations
+cp .env.example .env
+cp dashboard/frontend/.env.example dashboard/frontend/.env
+
 # Terminal 1: Start FastAPI Backend Service
 python -m uvicorn dashboard.api.main:app --host 0.0.0.0 --port 8000 --reload
 
@@ -337,11 +343,63 @@ npm install
 npm run dev
 ```
 
-Open `http://localhost:5173` in your web browser.
+Open `http://localhost:5173` in your web browser. The dashboard connects to Supabase cloud for real-time cohort management, assessment draft saving, file storage, and authentication.
 
 ---
 
-## 16. Key Research Limitations
+## 16. Supabase Backend Architecture
+
+The backend database, storage, and authentication layers are powered by **Supabase** (PostgreSQL):
+
+### 16.1 Cloud Project Configuration
+- **Project Name:** `mini project`
+- **Project Ref:** `trtvdmgswouirfaqyrdk`
+- **Region:** `ap-south-1` (Mumbai)
+- **Supabase URL:** `https://trtvdmgswouirfaqyrdk.supabase.co`
+
+### 16.2 Database Schema (16 Tables)
+1. **User & Identity Layer:**
+   - `public.profiles`: Clinician/researcher accounts linked to `auth.users(id)`.
+2. **Clinical Cohort & Assessment Layer:**
+   - `public.cohort_participants`: Research participants with pseudonymous IDs, age, sex, risk status, and modality presence indicators.
+   - `public.assessments`: Modality assessment records (olfactory, RBD, voice, motor, retinal) with status, completion timestamps, and draft data.
+   - `public.fusion_results`: Gated multimodal fusion predictions, SHAP attribution shares, and confidence intervals.
+3. **Mobile Biomarker Extension Layer:**
+   - `public.participants`: Longitudinal mobile cohort participants with enrollment and baseline dates.
+   - `public.consent_records`: Digital signed informed consents with withdrawal capabilities.
+   - `public.typing_sessions`: Keystroke dynamics and inter-key timing intervals.
+   - `public.voice_sessions`: Acoustic phonation features (jitter, shimmer, PPE, HNR).
+   - `public.motor_sessions`: Accelerometer/gyroscope motor kinematics (tremor, finger tapping, postural stability).
+   - `public.visual_sessions`: Front-camera facial/visual behavior (blink rate, fixations, saccades).
+   - `public.sleep_sessions`: Ambulatory sleep patterns (RBD questionnaire, sleep quality, circadian stability).
+   - `public.daily_features`: 24-hour window aggregated feature sets across all 5 modalities.
+   - `public.personal_baselines`: 14-day established rolling baselines per participant.
+   - `public.daily_deviations`: Mahalanobis and statistical distance metrics from baseline.
+   - `public.mpf_predictions`: Longitudinal risk predictions calibrated from mobile features.
+4. **Research Metadata:**
+   - `public.model_versions`: Auditable registry of deployed ML checkpoints, weights, and validation AUROC/Brier scores.
+
+### 16.3 Row Level Security (RLS) & Storage
+- **RLS Enabled:** All 16 tables have strict RLS policies ensuring users can only read and write data according to their user ID or research role. Unauthenticated preview of reference cohort samples and model versions is permitted via controlled anon read policies.
+- **Storage Buckets:**
+  - `profiles`: Public avatar image storage.
+  - `uploads`: User-scoped private file storage for assessment attachments and telemetry files.
+  - `consent-documents`: User-scoped signed consent records.
+  - `research-exports`: Restricted research export packages.
+
+### 16.4 Running Supabase Tests
+To verify live database connectivity, RLS enforcement, auth flows, and FastAPI endpoints:
+```bash
+# Run Supabase integration and live cloud database test suite
+pytest tests/test_supabase_integration.py -v
+
+# Run Supabase authentication and mock flow tests
+pytest supabase/tests -v
+```
+
+---
+
+## 17. Key Research Limitations
 
 1. **Synthetic Simulation Data:** Due to open-access restrictions on 5-modality human cohorts, active modeling used a synthetic test fixture (`Category E`). Results carry **zero clinical diagnostic validity**.
 2. **Dataset Mismatch:** Public unimodal datasets reflect manifest disease (e.g. PhysioNet gait, UCI voice) rather than subtle prodromal changes.

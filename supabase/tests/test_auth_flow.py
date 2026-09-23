@@ -5,8 +5,15 @@ and Privacy-Compliant Account Deletion Flow.
 
 import sqlite3
 import time
+import sys
+from pathlib import Path
 import pytest
-from supabase.tests.auth_service import SupabaseAuthService
+
+_tests_dir = str(Path(__file__).resolve().parent)
+if _tests_dir not in sys.path:
+    sys.path.insert(0, _tests_dir)
+
+from auth_service import SupabaseAuthService
 
 
 @pytest.fixture
