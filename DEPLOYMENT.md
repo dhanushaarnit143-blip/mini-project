@@ -164,12 +164,118 @@ Executes end-to-end multimodal inference.
 }
 ```
 
-### 5.4 `POST /explain`
-Computes exact TreeSHAP values and modality-level percentage attributions for the input record.
+### 5.4 `POST /api/mobile/analyze`
+Executes end-to-end multimodal inference on mobile longitudinal digital biomarkers via the MPF Adapter layer.
+- **Request Body (`MobileAnalysisRequest`):**
+```json
+{
+  "participant_id": "P001",
+  "features": {
+    "typing": {"typing_speed": 4.2, "interval_variability": 0.12, "correction_rate": 0.05},
+    "voice": {"jitter": 0.008, "shimmer": 0.04, "hnr": 18.5, "pitch_mean": 145.0},
+    "motor": {"cadence": 105.0, "stride_variability": 2.5, "tapping_rate": 5.1},
+    "sleep": {"rbdsq_total": 3.0, "unusual_movement_self_report": 0.0}
+  },
+  "baseline_deviation_context": {
+    "baseline_version": "1.0.0",
+    "mahalanobis_distance": 1.25,
+    "status": "within_baseline"
+  },
+  "demographics": {"age": 65.0, "sex": "male"},
+  "log_to_db": true,
+  "raw_feature_version": "1.0.0",
+  "app_version": "1.0.0"
+}
+```
+- **Response (`MobileAnalysisResponse`):**
+```json
+{
+  "risk_score": 0.3421,
+  "status": "success",
+  "risk_pattern": "Standard risk pattern observed",
+  "available_modalities": ["voice", "motor", "rbd"],
+  "missing_modalities": ["olfactory", "retina"],
+  "model_version": "gated_multimodal_fusion_v1",
+  "prediction_metadata": {
+    "source": "mobile_extension",
+    "feature_mapping_version": "1.0.0",
+    "feature_version": "1.0.0",
+    "raw_feature_version": "1.0.0",
+    "processing_version": "1.0.0",
+    "baseline_version": "1.0.0",
+    "model_version": "gated_multimodal_fusion_v1",
+    "app_version": "1.0.0",
+    "disclaimer": "Research screening result — not a clinical diagnosis."
+  },
+  "gate_weights": {"voice": 0.34, "motor": 0.33, "rbd": 0.33},
+  "explanation": {...}
+}
+```
 
 ---
 
-## 6. Productionization Limitations & Regulatory Notice
+## 6. Mobile Extension Deployment & Integration Guide
+
+The MPF Mobile Extension coordinates three decoupled operational layers:
+```
+Mobile App (Flutter / React)  <-->  Supabase Cloud (PostgreSQL 15+ & Auth)  <-->  Backend API (FastAPI) + Frozen MPF Core
+```
+
+### 6.1 Environment Configuration
+Create or configure the `.env` file in the repository root:
+```ini
+# Supabase Configuration
+SUPABASE_URL=https://trtvdmgswouirfaqyrdk.supabase.co
+SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+# Backend API Service
+API_HOST=0.0.0.0
+API_PORT=8000
+LOG_LEVEL=INFO
+
+# MPF Adapter
+PREPROCESSOR_PATH=models/fusion/preprocessor.joblib
+PREDICTION_AUDIT_LOG=logs/mobile_predictions.jsonl
+```
+
+### 6.2 Step 1: Database Migration & Verification
+Ensure all 16 tables and RLS policies are applied to Supabase:
+```bash
+# Verify live Supabase database and schema integrity
+pytest supabase/tests/test_schema_integrity.py -v
+pytest tests/test_supabase_integration.py -v
+```
+
+### 6.3 Step 2: Start MPF Backend Service
+Launch the central FastAPI service with the mobile ingestion endpoint:
+```bash
+python -m uvicorn dashboard.api.main:app --host 0.0.0.0 --port 8000 --reload
+```
+Test health status:
+```bash
+curl -X GET http://localhost:8000/api/health
+```
+
+### 6.4 Step 3: Run Full Pipeline Integration Validation
+Execute the complete Phase 16 end-to-end integration and backward compatibility test suite:
+```bash
+# 14-day baseline simulation, progressive deviation, adapter inference, and backward compatibility
+pytest tests/integration/test_phase16_e2e_integration.py -v
+```
+
+### 6.5 Operational Deployment Checklist
+- [x] Pre-trained models verified present in `models/` (classifier, encoder, preprocessor)
+- [x] Supabase cloud connection established with RLS policies enabled
+- [x] Zero raw sensor retention on-device (audio, video, keystroke text destroyed immediately after DSP)
+- [x] Adapter maps mobile digital biomarkers without modifying existing MPF weights
+- [x] 14-day calibration window enforced before computing longitudinal deviation alerts
+- [x] 5-tuple version coordinates recorded for every prediction (`raw_feature`, `processing`, `baseline`, `model`, `app`)
+- [x] Non-diagnostic disclaimers present across all API responses and UI screens
+
+---
+
+## 7. Productionization Limitations & Regulatory Notice
 
 > [!CAUTION]
 > ### MANDATORY WARNING BEFORE ANY PRODUCTION CONSIDERATION

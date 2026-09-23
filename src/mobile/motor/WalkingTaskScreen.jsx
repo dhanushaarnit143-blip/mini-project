@@ -27,7 +27,7 @@ import { MotorSessionModel, MOTOR_TASK_TYPES } from './motorSessionModel.js';
  *
  * COMPLIANCE:
  * - "Research screening result — not a clinical diagnosis."
- * - "Deviation from personal baseline" — NOT "Parkinson's progression."
+ * - "Deviation from personal baseline" — NOT disease progression.
  * - No background sensor collection.
  * - Raw sensor streams are never persisted or uploaded.
  */

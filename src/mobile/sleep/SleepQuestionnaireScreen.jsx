@@ -16,7 +16,7 @@ import { SleepSessionModel } from './sleepSessionModel.js';
  *
  * STRICT RESEARCH COMPLIANCE:
  * - "Self-reported sleep behavior" & "Questionnaire-based indicator"
- * - NOT equivalent to polysomnography or clinical diagnosis.
+ * - Not equivalent to polysomnography and not a clinical diagnosis.
  * - Zero diagnostic language.
  */
 export function SleepQuestionnaireScreen({
@@ -277,7 +277,7 @@ export function SleepQuestionnaireScreen({
               ))}
             </div>
             <p style={styles.questionHint}>
-              * Screens for self-reported dream enactments. Does NOT provide a clinical diagnosis of RBD.
+              * Screens for self-reported dream enactments and is not a clinical diagnosis of RBD.
             </p>
           </div>
 

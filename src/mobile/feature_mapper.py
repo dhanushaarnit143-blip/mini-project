@@ -404,6 +404,10 @@ def map_mobile_features(
             "available": False,
             "reason": "Smartphone front camera is NOT a retinal fundus/OCT camera",
         },
+        "retinal": {
+            "available": False,
+            "reason": "Smartphone front camera is NOT a retinal fundus/OCT camera",
+        },
         "voice": {
             "available": voice_avail,
             "features": voice_mapped if voice_avail else {},
@@ -435,4 +439,26 @@ def map_mobile_features(
         ],
     }
 
-    return mapped_mpf_payload, mapping_metadata
+    return MappedResult(mapped_mpf_payload, mapping_metadata)
+
+
+class MappedResult(dict):
+    """
+    Dual-interface mapping result:
+    - Dict interface: Contains combined keys from payload and metadata (e.g. 'available_modalities', 'missing_modalities')
+    - 2-tuple interface: Unpacks as (mapped_mpf_payload, mapping_metadata) for callers expecting tuple unpacking
+    """
+    def __init__(self, payload: Dict[str, Any], metadata: Dict[str, Any]):
+        super().__init__(payload)
+        self.update(metadata)
+        self._payload = payload
+        self._metadata = metadata
+
+    def __iter__(self):
+        return iter((self._payload, self._metadata))
+
+    def __getitem__(self, key: Any) -> Any:
+        if isinstance(key, int):
+            return (self._payload, self._metadata)[key]
+        return super().__getitem__(key)
+

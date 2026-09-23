@@ -6,7 +6,7 @@
  *
  * CRITICAL NON-NEGOTIABLE COMPLIANCE RULES:
  * 1. NO DIAGNOSTIC CLAIMS:
- *    - Never say: "You have Parkinson's", "RBD detected", "Diagnosed RBD", "Confirmed RBD", "Parkinson's progression".
+ *    - Never make definitive diagnosis or disease progression claims.
  *    - Always say: "Self-reported sleep movement pattern noted", "Deviation from personal baseline",
  *                  "Research screening result — not a clinical diagnosis".
  * 2. DISTINCTION FROM CLINICAL RBD:

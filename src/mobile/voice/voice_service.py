@@ -221,9 +221,11 @@ class VoiceFeatureExtractor:
     """
 
     @classmethod
-    def extract_features(cls, audio: np.ndarray, sample_rate: int = 44100) -> Dict[str, Any]:
+    def extract_features(cls, audio: np.ndarray, sample_rate: int = 44100, task_type: str = TASK_SUSTAINED_VOWEL, *args, **kwargs) -> Dict[str, Any]:
         if audio is None or len(audio) == 0:
-            return cls._get_empty_features()
+            res = cls._get_empty_features()
+            res["task_type"] = task_type
+            return res
 
         audio = np.asarray(audio, dtype=np.float32)
         duration = float(len(audio) / sample_rate)
@@ -251,7 +253,9 @@ class VoiceFeatureExtractor:
 
         return {
             "feature_version": FEATURE_VERSION,
+            "task_type": task_type,
             "duration": round(duration, 2),
+            "duration_seconds": round(duration, 2),
             "signal_quality": round(signal_quality, 2),
             "clipping_detected": bool(clipping_detected),
             "silence_ratio": round(float(silence_ratio), 3),
@@ -261,6 +265,10 @@ class VoiceFeatureExtractor:
             "shimmer": round(float(shimmer), 5),
             "hnr": round(float(hnr), 2),
             "mfcc_features": [round(float(v), 4) for v in mfccs],
+            "mfccs": [round(float(v), 4) for v in mfccs],
+            "spectral_centroid": round(float(spectral["centroid"]), 2),
+            "spectral_bandwidth": round(float(spectral["bandwidth"]), 2),
+            "spectral_rolloff": round(float(spectral["rolloff"]), 2),
             "spectral_features": {
                 "spectral_centroid": round(float(spectral["centroid"]), 2),
                 "spectral_bandwidth": round(float(spectral["bandwidth"]), 2),
@@ -575,14 +583,22 @@ class VoiceQualityScorer:
             "summary": "Eligible for baseline modeling" if is_eligible else "Rejected from baseline modeling"
         }
 
+    @classmethod
+    def score_session(cls, features: Dict[str, Any]) -> Dict[str, Any]:
+        """Evaluates quality score from an extracted feature dict."""
+        res = cls.calculate_quality_score(features)
+        res["passes_threshold"] = res.get("is_baseline_eligible", False)
+        return res
+
 
 class VoiceSessionModel:
     """
     Python data model conforming directly to the Supabase voice_sessions table.
     Enforces check constraints, UUID validation, and ensures raw audio is never stored.
     """
-    def __init__(self, data: Optional[Dict[str, Any]] = None):
-        data = data or {}
+    def __init__(self, data: Optional[Dict[str, Any]] = None, **kwargs):
+        data = dict(data) if data is not None else {}
+        data.update(kwargs)
         self.id: Optional[str] = data.get("id")
         self.participant_id: str = data.get("participant_id", "")
         self.session_id: str = data.get("session_id", str(uuid.uuid4()))
@@ -604,6 +620,9 @@ class VoiceSessionModel:
         self.quality_score: float = float(data.get("quality_score", 0.0))
         self.feature_version: str = data.get("feature_version", FEATURE_VERSION)
         self.synced: bool = bool(data.get("synced", False))
+
+    def to_dict(self) -> Dict[str, Any]:
+        return self.to_supabase_payload()
 
     @classmethod
     def from_features(
@@ -700,3 +719,7 @@ class VoiceSessionModel:
             "feature_version": self.feature_version,
             "synced": self.synced
         }
+
+
+VoiceSession = VoiceSessionModel
+

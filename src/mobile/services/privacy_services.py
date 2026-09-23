@@ -178,6 +178,11 @@ class ConsentService:
 
         return False
 
+    def has_consent(self, participant_id: str, consent_type: str) -> bool:
+        """Alias for check_consent."""
+        return self.check_consent(participant_id, consent_type)
+
+
     def assert_authorized_collection(self, participant_id: str, modality: str):
         """Raises PermissionError if participant has not consented to collection or modality sensor."""
         if not self.check_consent(participant_id, CONSENT_TYPES["DATA_COLLECTION"]):
@@ -335,14 +340,32 @@ class DeletionService:
                 "deleted_at": now_iso,
             }).eq("id", participant_id).execute()
 
+        audit_id = f"del_{participant_id[:8]}_{int(datetime.datetime.now().timestamp())}"
         return {
             "success": True,
             "participant_id": participant_id,
             "deletion_timestamp": now_iso,
+            "timestamp": now_iso,
+            "audit_id": audit_id,
+            "deletion_id": audit_id,
             "is_irreversible": True,
             "purge_results": purge_counts,
             "message": "All participant research observations and model outputs permanently deleted.",
         }
+
+    def request_deletion(
+        self,
+        participant_id: str,
+        confirmation_phrase: str = "",
+        reason: str = "Participant requested erasure",
+        **kwargs
+    ) -> Dict[str, Any]:
+        """Alias for request_account_deletion."""
+        return self.request_account_deletion(
+            participant_id=participant_id,
+            confirmation_phrase=confirmation_phrase,
+            reason=reason,
+        )
 
 
 class ExportService:
@@ -351,6 +374,24 @@ class ExportService:
     def __init__(self, db_conn=None, supabase_client=None):
         self.conn = db_conn
         self.supabase = supabase_client
+
+    def build_export_package(
+        self,
+        participant_id: str,
+        session_records: Optional[List[Dict[str, Any]]] = None
+    ) -> Dict[str, Any]:
+        """Builds an export package filtering session records strictly to the requesting participant."""
+        filtered_sessions = []
+        if session_records:
+            filtered_sessions = [r for r in session_records if r.get("participant_id") == participant_id]
+
+        package = self.generate_participant_export(participant_id)
+        if session_records is not None:
+            package["data"]["sessions"] = filtered_sessions
+            package["sessions"] = filtered_sessions
+        package["participant_id"] = participant_id
+        return package
+
 
     def generate_participant_export(self, participant_id: str) -> Dict[str, Any]:
         """

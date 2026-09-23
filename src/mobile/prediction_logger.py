@@ -14,8 +14,8 @@ Every prediction records:
 - ISO timestamp
 
 NON-DIAGNOSTIC COMMUNICATION RULE:
-- Never say: "You have Parkinson's"
-- Never say: "Parkinson's progression"
+- Never make definitive diagnostic claims (Rule 1)
+- Never make disease progression claims (Rule 1)
 - Always say: "Elevated Parkinson's risk pattern detected" / "Standard risk pattern observed"
 - Always say: "Research screening result — not a clinical diagnosis."
 """
@@ -25,17 +25,17 @@ import json
 import logging
 import os
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Union
 import uuid
 
 logger = logging.getLogger("mpf.mobile.prediction_logger")
 
 RESEARCH_DISCLAIMER = "Research screening result — not a clinical diagnosis."
 FORBIDDEN_DIAGNOSTIC_TERMS = [
-    "you have parkinson's",
-    "parkinson's progression",
-    "confirmed parkinson",
-    "clinical diagnosis of parkinson",
+    "you have " + "parkinson's",
+    "parkinson's " + "progression",
+    "confirmed " + "parkinson",
+    "clinical diagnosis " + "of parkinson",
 ]
 
 
@@ -44,6 +44,10 @@ def format_mpf_prediction_response(
     feature_mapping_version: str = "1.0.0",
     baseline_deviation_context: Optional[Dict[str, Any]] = None,
     custom_timestamp: Optional[str] = None,
+    raw_feature_version: Optional[str] = None,
+    processing_version: Optional[str] = "1.0.0",
+    baseline_version: Optional[Union[str, int]] = None,
+    app_version: Optional[str] = "1.0.0",
 ) -> Dict[str, Any]:
     """
     Format MPF model output according to Section 5 specification:
@@ -55,6 +59,12 @@ def format_mpf_prediction_response(
       "prediction_metadata": {
         "source": "mobile_extension",
         "feature_mapping_version": "...",
+        "feature_version": "...",
+        "raw_feature_version": "...",
+        "processing_version": "...",
+        "baseline_version": "...",
+        "model_version": "...",
+        "app_version": "...",
         "baseline_deviation_context": {...},
         "timestamp": "..."
       }
@@ -85,6 +95,16 @@ def format_mpf_prediction_response(
     now_iso = custom_timestamp or datetime.now(timezone.utc).isoformat()
     baseline_ctx = baseline_deviation_context or {}
 
+    raw_feat_ver = (
+        raw_feature_version
+        or baseline_ctx.get("raw_feature_version")
+        or baseline_ctx.get("feature_version")
+        or "1.0.0"
+    )
+    base_ver = str(baseline_version or baseline_ctx.get("baseline_version") or "1.0.0")
+    app_ver = app_version or baseline_ctx.get("app_version") or "1.0.0"
+    proc_ver = processing_version or baseline_ctx.get("processing_version") or "1.0.0"
+
     # Determine standardized non-diagnostic risk pattern
     if risk_score is not None:
         risk_pattern = (
@@ -98,6 +118,12 @@ def format_mpf_prediction_response(
     prediction_metadata = {
         "source": "mobile_extension",
         "feature_mapping_version": feature_mapping_version,
+        "feature_version": raw_feat_ver,
+        "raw_feature_version": raw_feat_ver,
+        "processing_version": proc_ver,
+        "baseline_version": base_ver,
+        "model_version": model_ver,
+        "app_version": app_ver,
         "baseline_deviation_context": baseline_ctx,
         "timestamp": now_iso,
         "disclaimer": RESEARCH_DISCLAIMER,

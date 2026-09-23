@@ -39,8 +39,9 @@
 14. [Evaluation Instructions](#14-evaluation-instructions)
 15. [Interactive Web Dashboard & Supabase Integration](#15-interactive-web-dashboard--supabase-integration)
 16. [Supabase Backend Architecture](#16-supabase-backend-architecture)
-17. [Key Research Limitations](#17-key-research-limitations)
-18. [Research Disclaimer & Citation](#18-research-disclaimer--citation)
+17. [MPF Mobile Extension & Longitudinal Monitoring Module](#17-mpf-mobile-extension--longitudinal-monitoring-module)
+18. [Key Research Limitations](#18-key-research-limitations)
+19. [Research Disclaimer & Citation](#19-research-disclaimer--citation)
 
 ---
 
@@ -399,7 +400,73 @@ pytest supabase/tests -v
 
 ---
 
-## 17. Key Research Limitations
+## 17. MPF Mobile Extension & Longitudinal Monitoring Module
+
+The **MPF Mobile Extension** expands the core MPF-PD framework from isolated clinical cross-sectional snapshots into daily-life longitudinal digital biomarker collection. Rather than replacing the existing pipeline or attempting clinical diagnosis, the mobile extension establishes an individual's personal 14-day baseline and detects progressive deviations over time, translating compatible digital biomarkers into standardized inputs for the frozen MPF Gated Neural Fusion model.
+
+### 17.1 Core Governance & Safety Guardrails
+- **No Diagnostic Claims (Rule 1):** Strictly prohibits definitive clinical assertions. Uses exclusively safe, non-diagnostic risk communication:
+  - *"Elevated Parkinson's risk pattern detected"* / *"Standard risk pattern observed"*
+  - *"Your recent measurements differ from your personal baseline"*
+  - *"Research screening result — not a clinical diagnosis"*
+  - *"Progressive deviation from personal baseline"*
+- **Sensor Integrity & No Overclaiming (Rule 2):** The smartphone front camera is designated strictly as the **Ocular/Visual Behavior Module** (fixation stability, saccadic reaction time, blink rate). It is **NOT** a retinal camera and does not produce fundus/OCT microvascular imaging. Retinal and olfactory modalities are strictly marked unavailable during mobile inference.
+- **Privacy First (Rule 3):** Edge feature extraction runs on-device. Zero keystroke text, messages, passwords, or ambient background audio/video are ever recorded or uploaded.
+- **No Automatic Retraining (Rule 5):** The pre-trained MPF models and scalers are frozen. Mobile observations feed into model inference only via an external translation adapter.
+- **Baseline-Centric Analysis (Rule 6):** Initial 14 days serve as a calibration window. Only after establishing the personal baseline are longitudinal Z-scores and Mahalanobis distances computed.
+- **Versioned Reproducibility (Rule 7):** Every inference record captures a complete 5-tuple version coordinate: `raw_feature_version`, `processing_version`, `baseline_version`, `model_version`, and `app_version`.
+
+### 17.2 Mobile Digital Biomarkers
+| Modality | Collection Method | Extracted Mobile Features | MPF Target Mapping / Proxy |
+| :--- | :--- | :--- | :--- |
+| **Typing Dynamics** | Custom software keyboard / timing listener | Key hold duration, flight time, typing speed, rhythm variability, correction rate | `motor.tapping_rate` (proxy), `motor.tapping_interval_variability` (proxy), `motor.fine_motor_indicator` |
+| **Voice / Speech** | Active sustained vowel `/a/` task (5s, 44.1 kHz) | Jitter (local), shimmer (local), harmonics-to-noise ratio (HNR), mean pitch ($F_0$) | `voice.jitter`, `voice.shimmer`, `voice.hnr`, `voice.pitch_mean` |
+| **Motor & Kinematics** | Alternating finger tapping, postural tremor (100 Hz IMU), guided walk | Tapping frequency, cadence (steps/min), stride interval CV, tremor frequency (4–6 Hz band) | `motor.gait_cadence`, `motor.stride_variability`, `motor.tapping_rate`, `motor.tremor_frequency` |
+| **Ocular / Visual Behavior** | Front-facing camera guided fixation & saccade | Spontaneous blink rate, gaze fixation stability, saccadic reaction time (ms) | `ocular_visual` behavior record (Explicitly NOT retinal imaging; `retina: available=False`) |
+| **Sleep / RBD** | 13-item digital RBDSQ & morning self-report | Validated RBDSQ total score, dream enactment flag, sleep disturbance score | `rbd.rbdsq_total`, `rbd.above_cutoff_flag`, `rbd.item_responses` |
+
+### 17.3 Integration Architecture: MPF Adapter Layer
+The adapter (`src/mobile/mpf_adapter.py`) bridges mobile observations to the existing MPF core:
+```mermaid
+flowchart LR
+    subgraph MobileDevice ["Mobile Client"]
+        SENS["Edge Digital Biomarkers (Typing, Voice, Motor, Visual, Sleep)"]
+        BASE["14-Day Personal Baseline & Deviation Engine"]
+    end
+
+    subgraph AdapterLayer ["MPF Adapter (src/mobile/mpf_adapter.py)"]
+        VAL["Schema & Range Validation"]
+        MAP["Feature Mapping & Sensor Disclaimers"]
+        NORM["Exact Preprocessor Reapplication (preprocessor.joblib)"]
+        ROUT["Missing Clinical Modality Masking (Olfactory/Retina = False)"]
+    end
+
+    subgraph MPFCore ["Existing Frozen MPF Pipeline"]
+        PIPE["run_mpf_pipeline()"]
+        FUSE["Gated Multimodal Neural Fusion (PyTorch)"]
+        XGB["Calibrated XGBoost Classifier"]
+        SHAP["TreeSHAP Explainability"]
+    end
+
+    subgraph Dashboard ["Personal Research Dashboard"]
+        DASH["Risk Screening Result, Baseline Deviations, Gate Weights & Explanations"]
+    end
+
+    SENS --> BASE --> AdapterLayer
+    AdapterLayer --> MPFCore
+    MPFCore --> AdapterLayer
+    AdapterLayer --> Dashboard
+```
+
+### 17.4 REST API Integration Endpoint
+The backend FastAPI server exposes a dedicated endpoint for mobile inference:
+- **`POST /api/mobile/analyze`**
+  - **Request Body (`MobileAnalysisRequest`):** Contains `features` (daily aggregated digital biomarkers), `baseline_deviation_context` (personal Z-scores & Mahalanobis metrics), optional `demographics`, and version tags.
+  - **Response Body (`MobileAnalysisResponse`):** Standardized Section 5 result with `risk_score` $[0.0, 1.0]$, categorical `risk_pattern` ("Elevated Parkinson's risk pattern detected" / "Standard risk pattern observed"), `missing_modalities` (`olfactory`, `retina`), neural `gate_weights`, local `explanation`, and full version metadata.
+
+---
+
+## 18. Key Research Limitations
 
 1. **Synthetic Simulation Data:** Due to open-access restrictions on 5-modality human cohorts, active modeling used a synthetic test fixture (`Category E`). Results carry **zero clinical diagnostic validity**.
 2. **Dataset Mismatch:** Public unimodal datasets reflect manifest disease (e.g. PhysioNet gait, UCI voice) rather than subtle prodromal changes.
@@ -411,7 +478,7 @@ Comprehensive limitations: [docs/LIMITATIONS.md](docs/LIMITATIONS.md).
 
 ---
 
-## 17. Research Disclaimer & Citation
+## 19. Research Disclaimer & Citation
 
 > [!CAUTION]
 > **“This project is a research prototype. It does not diagnose Parkinson’s disease.”**  

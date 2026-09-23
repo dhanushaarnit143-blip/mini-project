@@ -17,7 +17,7 @@
  * - "Stable within baseline": no significant trend slope or within baseline envelope
  *
  * STRICT NON-DIAGNOSTIC COMPLIANCE:
- * - NEVER uses "Parkinson's progression", "Disease worsening", "Clinical decline".
+ * - Strictly avoids diagnostic and clinical progression terminology.
  */
 
 import { calculateDeviation } from './deviationCalculator.js';

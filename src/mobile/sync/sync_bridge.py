@@ -317,3 +317,21 @@ class PythonSyncManager:
         updated = self.queue.mark_failed(item["id"], error, increment_retry=True)
         if updated and updated["status"] == "failed":
             self.tracker.create_max_retries_alert(item["session_id"], str(error))
+
+
+class MobileSyncBridge(PythonSyncManager):
+    """
+    MobileSyncBridge conforming to Phase 13/15 interface expectations.
+    Coordinates queue, conflict resolver, and Supabase client synchronization.
+    """
+    def __init__(
+        self,
+        supabase_client: Optional[Any] = None,
+        queue: Optional[PythonOfflineQueue] = None,
+        conflict_resolver: Optional[PythonConflictResolver] = None,
+        tracker: Optional[PythonSyncStatusTracker] = None,
+        sync_fn: Optional[Callable[[Dict[str, Any]], Dict[str, Any]]] = None
+    ):
+        super().__init__(queue=queue, conflict_resolver=conflict_resolver, tracker=tracker, sync_fn=sync_fn)
+        self.supabase_client = supabase_client
+

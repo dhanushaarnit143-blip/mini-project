@@ -235,3 +235,93 @@ flowchart TD
 | `1.0.0` | `1.0.0` | `0.9.0` | `gated_multimodal_fusion_v1` | **Fully Compatible (Production)** |
 | `< 1.0.0` | `1.0.0` | `0.9.0` | `gated_multimodal_fusion_v1` | **Deprecated / Requires Migration** |
 | `> 1.0.0` | `1.0.0` | `0.9.0` | `gated_multimodal_fusion_v1` | **Blocked / Ingestion Rejected** |
+
+---
+
+## 7. Adapter API & REST Interface Specification (Phase 16)
+
+### 7.1 Python Class Interface: `MPFAdapter`
+```python
+from src.mobile.mpf_adapter import MPFAdapter
+
+adapter = MPFAdapter(
+    supabase_client=None,                 # Optional supabase client
+    preprocessor_path="models/fusion/preprocessor.joblib",
+    log_file_path="logs/mobile_predictions.jsonl",
+)
+
+result = adapter.run_inference(
+    mobile_daily_features={...},          # typing, voice, motor, visual, sleep
+    baseline_deviation_context={...},     # z_scores, mahalanobis_distance, status
+    demographics={"age": 65.0, "sex": "male"},
+    feature_date="2026-09-23",
+    log_to_db=True,
+    raw_feature_version="1.0.0",
+    processing_version="1.0.0",
+    baseline_version="1.0.0",
+    app_version="1.0.0",
+)
+```
+
+### 7.2 FastAPI REST Endpoint: `POST /api/mobile/analyze`
+- **Method:** `POST`
+- **Path:** `/api/mobile/analyze`
+- **Headers:** `Content-Type: application/json`
+- **Request Body (`MobileAnalysisRequest`):**
+```json
+{
+  "participant_id": "P016",
+  "features": {
+    "typing": { "typing_speed": 3.8, "interval_variability": 0.15, "correction_rate": 0.08 },
+    "voice": { "jitter": 0.012, "shimmer": 0.06, "hnr": 15.0, "pitch_mean": 140.0 },
+    "motor": { "cadence": 92.0, "stride_variability": 4.5, "tapping_rate": 4.0 },
+    "sleep": { "rbdsq_total": 5.0, "unusual_movement_self_report": 1.0 }
+  },
+  "baseline_deviation_context": {
+    "baseline_version": "1.0.0",
+    "mahalanobis_distance": 2.1,
+    "significant_deviations": ["voice.jitter", "motor.cadence"]
+  },
+  "demographics": { "age": 68.0, "sex": "male" },
+  "log_to_db": false,
+  "raw_feature_version": "1.0.0",
+  "app_version": "1.0.0"
+}
+```
+- **Response Body (`MobileAnalysisResponse`):**
+```json
+{
+  "risk_score": 0.8124,
+  "status": "success",
+  "risk_pattern": "Elevated Parkinson's risk pattern detected",
+  "available_modalities": ["voice", "motor", "rbd"],
+  "missing_modalities": ["olfactory", "retina"],
+  "model_version": "gated_multimodal_fusion_v1",
+  "prediction_metadata": {
+    "source": "mobile_extension",
+    "feature_mapping_version": "1.0.0",
+    "feature_version": "1.0.0",
+    "raw_feature_version": "1.0.0",
+    "processing_version": "1.0.0",
+    "baseline_version": "1.0.0",
+    "model_version": "gated_multimodal_fusion_v1",
+    "app_version": "1.0.0",
+    "baseline_deviation_context": { ... },
+    "timestamp": "2026-09-23T18:00:00+00:00",
+    "disclaimer": "Research screening result — not a clinical diagnosis.",
+    "risk_pattern": "Elevated Parkinson's risk pattern detected"
+  },
+  "gate_weights": { "voice": 0.38, "motor": 0.35, "rbd": 0.27 },
+  "explanation": {
+    "important_modalities": [
+      { "modality": "voice", "importance": 0.38, "missing": false },
+      { "modality": "motor", "importance": 0.35, "missing": false },
+      { "modality": "rbd", "importance": 0.27, "missing": false },
+      { "modality": "olfactory", "importance": 0.0, "missing": true },
+      { "modality": "retina", "importance": 0.0, "missing": true }
+    ]
+  },
+  "warnings": [...]
+}
+```
+

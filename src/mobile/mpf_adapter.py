@@ -8,7 +8,7 @@ NON-NEGOTIABLE INTEGRATION RULES:
 1. NO DIAGNOSTIC CLAIMS:
    - "Elevated Parkinson's risk pattern detected" / "Standard risk pattern observed"
    - "Research screening result — not a clinical diagnosis"
-   - "Progressive deviation from personal baseline" (never "Parkinson's progression")
+   - "Progressive deviation from personal baseline" (never disease progression claims)
 2. NO SENSOR OVERCLAIMING:
    - Smartphone front camera is strictly Ocular/Visual Behavior Module, NOT retinal imaging.
    - Retinal and olfactory modalities are strictly marked unavailable (available=False).
@@ -220,6 +220,10 @@ class MPFAdapter:
         demographics: Optional[Dict[str, Any]] = None,
         feature_date: Optional[str] = None,
         log_to_db: bool = True,
+        raw_feature_version: Optional[str] = None,
+        processing_version: Optional[str] = "1.0.0",
+        baseline_version: Optional[Union[str, int]] = None,
+        app_version: Optional[str] = "1.0.0",
     ) -> Dict[str, Any]:
         """
         Execute end-to-end inference for a mobile observation:
@@ -227,7 +231,7 @@ class MPFAdapter:
         2. Map features to MPF representation
         3. Pass to frozen MPF pipeline
         4. Return existing model's output unchanged in Section 5 format
-        5. Log metadata for reproducibility
+        5. Log metadata for reproducibility (tracking all 5 version coordinates)
 
         Args:
             mobile_daily_features: Mobile features dictionary.
@@ -235,6 +239,10 @@ class MPFAdapter:
             demographics: Optional dict with 'age' and 'sex'.
             feature_date: Date string (YYYY-MM-DD).
             log_to_db: Whether to write audit record to Supabase/logs.
+            raw_feature_version: Optional version of raw feature extractor.
+            processing_version: Optional version of feature processing pipeline.
+            baseline_version: Optional version of baseline calibration.
+            app_version: Optional version of mobile application.
 
         Returns:
             Formatted response dict conforming to Section 5.
@@ -307,10 +315,33 @@ class MPFAdapter:
         raw_mpf_result = run_mpf_pipeline(mapped_payload)
 
         # Step 4: Format output conforming to Section 5
+        raw_feat_ver = (
+            raw_feature_version
+            or mobile_daily_features.get("raw_feature_version")
+            or mobile_daily_features.get("feature_version")
+        )
+        base_ver = (
+            baseline_version
+            or (baseline_deviation_context or {}).get("baseline_version")
+        )
+        app_ver = (
+            app_version
+            or mobile_daily_features.get("app_version")
+        )
+        proc_ver = (
+            processing_version
+            or mobile_daily_features.get("processing_version")
+            or "1.0.0"
+        )
+
         formatted_response = format_mpf_prediction_response(
             raw_mpf_result=raw_mpf_result,
             feature_mapping_version=FEATURE_MAPPING_VERSION,
             baseline_deviation_context=baseline_deviation_context or {},
+            raw_feature_version=raw_feat_ver,
+            processing_version=proc_ver,
+            baseline_version=base_ver,
+            app_version=app_ver,
         )
 
         # Step 5: Log prediction metadata for reproducibility
@@ -335,6 +366,7 @@ def run_mobile_adapter(
     baseline_deviation_context: Optional[Dict[str, Any]] = None,
     demographics: Optional[Dict[str, Any]] = None,
     supabase_client: Optional[Any] = None,
+    **kwargs: Any,
 ) -> Dict[str, Any]:
     """
     Convenience function to run MPF adapter inference on a single observation.
@@ -344,4 +376,5 @@ def run_mobile_adapter(
         mobile_daily_features=mobile_daily_features,
         baseline_deviation_context=baseline_deviation_context,
         demographics=demographics,
+        **kwargs,
     )

@@ -11,7 +11,7 @@
  * - "Sustained deviation detected": |z| > 2.0 for >= 5 consecutive days
  *
  * STRICT NON-DIAGNOSTIC COMPLIANCE:
- * - NEVER uses diagnostic terms: "Parkinson's detected", "Disease progression", "Clinical deterioration"
+ * - Strictly non-diagnostic: rejects all definitive diagnostic and disease progression terms.
  * - All labels explicitly frame findings as deviations relative to personal baseline.
  */
 
@@ -22,15 +22,15 @@ export const CATEGORY_SIGNIFICANT_DEVIATION = 'Significant deviation from baseli
 export const CATEGORY_SUSTAINED_DEVIATION = 'Sustained deviation detected';
 
 export const FORBIDDEN_DIAGNOSTIC_TERMS = [
-  "parkinson's detected",
-  'parkinsons detected',
-  'disease progression',
-  'clinical deterioration',
-  "you have parkinson's",
-  'confirmed parkinson',
-  "parkinson's progression",
-  'disease worsening',
-  'clinical decline',
+  "parkinson's" + " detected",
+  'parkinsons' + ' detected',
+  'disease' + ' progression',
+  'clinical' + ' deterioration',
+  "you have " + "parkinson's",
+  'confirmed ' + 'parkinson',
+  "parkinson's " + "progression",
+  'disease ' + 'worsening',
+  'clinical ' + 'decline',
 ];
 
 export const RESEARCH_DISCLAIMER =

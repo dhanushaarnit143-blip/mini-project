@@ -282,3 +282,24 @@ The Mobile Extension integrates with the existing MPF project exclusively throug
 - **Cryptographic Isolation:** Each participant is assigned a random UUIDv4 at onboarding. No national ID, email, or telephone number is linked to sensor or feature tables.
 - **Row-Level Security (RLS):** Supabase database policies restrict access such that an authenticated participant token can only query rows where `participant_id == auth.uid()`.
 - **Egress Boundary:** Raw sensor data (audio recordings, camera frames, keystroke text) never crosses the local device boundary. Only derived statistical aggregates and digital biomarkers are transmitted over TLS 1.3.
+
+---
+
+## 8. Phase 16 Full Integration Verification & System Guarantees
+
+In accordance with Phase 16 requirements, the complete mobile extension and MPF core have been linked and verified end-to-end:
+
+### 8.1 Integration Pipeline Verification
+1. **Feature Mapping:** Mobile digital biomarkers (typing speed, interval variability, vocal jitter/shimmer/HNR/pitch, gait cadence, stride CV, finger tapping rate, RBDSQ total) map faithfully to MPF representations without inventing features or imputing missing modalities from population averages.
+2. **Preprocessing Consistency:** Normalization exactly re-applies `models/fusion/preprocessor.joblib`. Scalers and imputers are strictly frozen.
+3. **Missing Modality Handling:** The Gated Neural Fusion layer successfully processes observations with missing modalities (`olfactory`, `retina`) via masked attention weights ($\alpha_{\text{olf}} = 0.0, \alpha_{\text{ret}} = 0.0$) and learned missing token embeddings.
+4. **Frozen Model Inference:** All predictions are generated with zero model retraining or weight updates (`eval` mode only).
+5. **Standardized Non-Diagnostic Output:** Risk scores $[0.0, 1.0]$, neural gate weights, SHAP explanations, and non-diagnostic risk patterns are returned unchanged to mobile dashboard and stored in Supabase `mpf_predictions`.
+6. **5-Tuple Version Reproducibility (Rule 7):** Every prediction audit entry explicitly records:
+   - `raw_feature_version`
+   - `processing_version`
+   - `baseline_version`
+   - `model_version`
+   - `app_version`
+7. **Zero Regression & Backward Compatibility:** Existing MPF pipeline with original 5-modality datasets produces exact expected deterministic outputs. Mobile extension is purely additive.
+

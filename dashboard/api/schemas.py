@@ -90,3 +90,31 @@ class HealthResponse(BaseModel):
     version: str
     models_loaded: Dict[str, bool]
     message: str
+
+
+class MobileAnalysisRequest(BaseModel):
+    participant_id: Optional[str] = Field("MOBILE_001", description="Pseudonymous participant UUID or ID")
+    features: Dict[str, Any] = Field(..., description="Mobile daily features object (typing, voice, motor, visual, sleep)")
+    baseline_deviation_context: Optional[Dict[str, Any]] = Field(default_factory=dict, description="Context from 14-day baseline deviation calculations")
+    demographics: Optional[Dict[str, Any]] = Field(default=None, description="Optional demographics (age, sex)")
+    feature_date: Optional[str] = Field(None, description="Date of feature collection (YYYY-MM-DD)")
+    log_to_db: bool = Field(True, description="Whether to record prediction to audit store")
+    raw_feature_version: Optional[str] = Field(None, description="Raw feature extraction version")
+    processing_version: Optional[str] = Field("1.0.0", description="Feature processing pipeline version")
+    baseline_version: Optional[str] = Field(None, description="Baseline calibration profile version")
+    app_version: Optional[str] = Field("1.0.0", description="Mobile client app version")
+
+
+class MobileAnalysisResponse(BaseModel):
+    risk_score: Optional[float] = Field(None, description="Estimated research risk score [0.0, 1.0]")
+    status: str = Field(..., description="Execution status ('success', 'failed_schema_validation', etc.)")
+    risk_pattern: str = Field(..., description="Categorical risk pattern ('Elevated Parkinson's risk pattern detected' or 'Standard risk pattern observed')")
+    available_modalities: List[str] = Field(default_factory=list, description="Available modalities included in inference")
+    missing_modalities: List[str] = Field(default_factory=list, description="Missing modalities handled by fusion gating")
+    model_version: str = Field(..., description="Model version tag")
+    prediction_metadata: Dict[str, Any] = Field(default_factory=dict, description="Full versioned audit metadata and disclaimers")
+    gate_weights: Optional[Dict[str, float]] = Field(default_factory=dict, description="Attention gate weights across modalities")
+    fused_embedding: Optional[List[float]] = Field(default_factory=list, description="Latent fused representation vector")
+    explanation: Optional[Dict[str, Any]] = Field(default_factory=dict, description="SHAP and gate-weight feature/modality explanations")
+    warnings: List[str] = Field(default_factory=list, description="System and QC warnings")
+

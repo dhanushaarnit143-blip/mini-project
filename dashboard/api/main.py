@@ -31,6 +31,8 @@ from src.pipeline import run_mpf_pipeline
 from dashboard.api.schemas import (
     AnalysisResponse,
     HealthResponse,
+    MobileAnalysisRequest,
+    MobileAnalysisResponse,
 )
 
 logger = logging.getLogger("mpf.api")
@@ -186,6 +188,62 @@ async def analyze_multimodal(
             shutil.rmtree(temp_dir, ignore_errors=True)
 
 
+
+@app.post("/api/mobile/analyze", response_model=MobileAnalysisResponse)
+async def analyze_mobile(
+    request: Request,
+    payload: Optional[MobileAnalysisRequest] = None,
+) -> Any:
+    """
+    Execute multimodal inference on mobile longitudinal daily features via MPF Adapter.
+
+    Accepts mobile daily features (typing, voice, motor, visual, sleep), baseline
+    deviation context, and version metadata. Maps to the MPF multimodal representation,
+    executes frozen MPF pipeline inference, and returns a standardized non-diagnostic
+    risk screening result.
+    """
+    try:
+        body: MobileAnalysisRequest
+        if payload is not None:
+            body = payload
+        else:
+            raw_data = await request.json()
+            body = MobileAnalysisRequest(**raw_data)
+
+        from src.mobile.mpf_adapter import MPFAdapter
+        from dashboard.api.supabase_client import get_supabase
+
+        supabase_cli = get_supabase()
+        adapter = MPFAdapter(supabase_client=supabase_cli)
+
+        feats = dict(body.features)
+        if "participant_id" not in feats and body.participant_id:
+            feats["participant_id"] = body.participant_id
+
+        result = adapter.run_inference(
+            mobile_daily_features=feats,
+            baseline_deviation_context=body.baseline_deviation_context,
+            demographics=body.demographics,
+            feature_date=body.feature_date,
+            log_to_db=body.log_to_db,
+            raw_feature_version=body.raw_feature_version,
+            processing_version=body.processing_version,
+            baseline_version=body.baseline_version,
+            app_version=body.app_version,
+        )
+
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.exception("Mobile analysis pipeline execution failed")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Mobile analysis failed: {str(e)}",
+        )
+
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("dashboard.api.main:app", host="0.0.0.0", port=8000, reload=True)
+

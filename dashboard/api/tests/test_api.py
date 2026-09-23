@@ -97,3 +97,45 @@ def test_analyze_invalid_json_returns_400():
         data={"payload": "invalid-json{{"},
     )
     assert response.status_code == 400
+
+
+def test_mobile_analyze_endpoint():
+    """Verify /api/mobile/analyze processes mobile features and returns valid risk score and metadata."""
+    payload = {
+        "participant_id": "TEST-MOBILE-01",
+        "features": {
+            "typing": {"typing_speed": 4.8, "interval_variability": 0.11, "correction_rate": 0.05},
+            "voice": {"jitter": 0.008, "shimmer": 0.04, "hnr": 18.0, "pitch_mean": 140.0},
+            "motor": {"cadence": 105.0, "stride_variability": 2.5, "tapping_rate": 5.0},
+            "sleep": {"rbdsq_total": 3.0, "unusual_movement_self_report": 0.0},
+        },
+        "baseline_deviation_context": {
+            "baseline_version": "1.0.0",
+            "mahalanobis_distance": 1.15,
+            "status": "within_baseline",
+        },
+        "demographics": {"age": 63.0, "sex": "male"},
+        "log_to_db": False,
+        "raw_feature_version": "1.0.0",
+        "app_version": "1.0.0",
+    }
+    response = client.post("/api/mobile/analyze", json=payload)
+    assert response.status_code == 200
+    data = response.json()
+    assert "risk_score" in data
+    assert data["risk_score"] is not None
+    assert 0.0 <= data["risk_score"] <= 1.0
+    assert "status" in data
+    assert data["status"] == "success"
+    assert "risk_pattern" in data
+    assert "Elevated" in data["risk_pattern"] or "Standard" in data["risk_pattern"]
+    assert "prediction_metadata" in data
+    meta = data["prediction_metadata"]
+    assert meta["source"] == "mobile_extension"
+    assert meta["model_version"] is not None
+    assert meta["baseline_version"] == "1.0.0"
+    assert "disclaimer" in meta
+    # Ensure retina and olfactory are missing
+    assert "retina" in data["missing_modalities"]
+    assert "olfactory" in data["missing_modalities"]
+
