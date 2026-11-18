@@ -24,4 +24,4 @@ opencv-python
 # segmentation-models-pytorch
 
 # Explainability
-# shap
+shap
