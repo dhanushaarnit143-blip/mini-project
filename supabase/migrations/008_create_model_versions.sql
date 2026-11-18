@@ -10,7 +10,8 @@ CREATE TABLE IF NOT EXISTS model_versions (
     feature_schema_version TEXT NOT NULL,
     training_dataset_version TEXT NOT NULL,
     metrics JSONB NOT NULL DEFAULT '{}'::jsonb,
-    active BOOLEAN NOT NULL DEFAULT TRUE
+    active BOOLEAN NOT NULL DEFAULT TRUE,
+    CONSTRAINT uq_model_versions_name_version UNIQUE (model_name, version)
 );
 
 CREATE INDEX IF NOT EXISTS idx_model_versions_active ON model_versions(active);
