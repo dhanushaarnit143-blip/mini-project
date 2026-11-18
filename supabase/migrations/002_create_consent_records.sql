@@ -4,9 +4,9 @@
 CREATE TABLE IF NOT EXISTS consent_records (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     participant_id UUID NOT NULL REFERENCES participants(id) ON DELETE CASCADE,
-    consent_type TEXT NOT NULL CHECK (consent_type IN ('data_collection', 'audio_storage', 'research_export', 'deletion')),
+    consent_type TEXT NOT NULL CHECK (consent_type IN ('data_collection', 'audio_storage', 'research_export')),
     consent_version TEXT NOT NULL,
-    granted BOOLEAN NOT NULL DEFAULT TRUE,
+    granted BOOLEAN NOT NULL,
     timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     revoked_at TIMESTAMPTZ
 );

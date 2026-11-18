@@ -1,22 +1,25 @@
-# MPF Mobile Extension — Supabase Backend Architecture & Specifications
+# MPF-PD Mobile Extension — Supabase Architecture & Database Schema
 
-**Multimodal Prodromal Fusion for Parkinson's Disease (MPF-PD)**  
-*Relational Data Model, Authentication, Row-Level Security (RLS), and Storage Configuration*  
-*Module Version: 1.0.0 | Phase: PHASE 2 COMPLETE*
+**Project:** Multimodal Prodromal Fusion for Parkinson's Disease Risk Screening (MPF-PD)  
+**Component:** Supabase Real-Time Backend & Data Engineering Layer  
+**Phase:** PHASE A — Schema, Authentication, and Row Level Security (RLS)  
+**Status:** Completed & Validated  
+**Notice:** Research screening prototype only. Not for clinical diagnosis.
 
 ---
 
-## 1. System Overview & Mandate Compliance
+## 1. Architectural Overview & Compliance
 
-The Supabase backend for the MPF Mobile Extension serves as the secure, privacy-preserving ingestion, longitudinal baseline, and inference log repository. It is designed to strictly adhere to the project's non-negotiable core principles:
+The Supabase backend provides the secure, HIPAA/GDPR-aligned data engineering foundation for multimodal prodromal screening data collection:
 
-1. **NO DIAGNOSTIC CLAIMS:** Outputs recorded in `mpf_predictions` are labeled as research screening results ("Elevated Parkinson's risk pattern detected" / "Research screening result — not a clinical diagnosis").
-2. **NO SENSOR OVERCLAIMING:** The visual task data stored in `visual_sessions` is strictly designated as the **Ocular/Visual Behavior Module** (fixation stability, blink rate, saccadic latency). It is explicitly **NOT** retinal imaging.
-3. **PRIVACY FIRST:** Keystroke text, raw audio, raw video frames, passwords, and sensitive background sensor streams are **never** stored. Extracted timing dynamics and acoustic/kinematic features are uploaded exclusively over TLS.
-4. **NO DATA FABRICATION:** Strict schema constraints, unique idempotency keys, and range checks reject invalid or malformed data.
-5. **NO AUTOMATIC RETRAINING:** The `model_versions` table maintains read-only versioned checkpoints. Model inference is completely separated from model retraining.
-6. **BASELINE-CENTRIC ANALYSIS:** Features in `daily_features` are evaluated against `personal_baselines` (14-day calibration), logging deviations to `daily_deviations`.
-7. **VERSIONED REPRODUCIBILITY:** Every table maintains version fields (`feature_version`, `baseline_version`, `model_version`, `app_version`).
+1. **Non-Diagnostic Framing:** `mpf_predictions` records risk scores as research probabilities (0.0 to 1.0) with non-diagnostic metadata.
+2. **Zero Raw Audio / Keystroke Text / Raw Video Storage:**
+   - Keystroke dynamics store only inter-key intervals, flight times, and rhythm variability (no character codes or text).
+   - Voice sessions store acoustic features (jitter, shimmer, HNR, MFCCs) — raw audio is never stored by default.
+   - Visual sessions record ocular behavior metrics (blink rate, fixation stability, saccadic latency) — strictly behavioral, never retinal fundus imaging.
+3. **Strict Idempotency:** Every session table contains a unique `session_id` preventing duplicate ingestion during network retries or offline sync.
+4. **Longitudinal Personal Baselines:** 14-day calibration curves are stored in `personal_baselines` with median/MAD statistics; daily departures are recorded in `daily_deviations`.
+5. **Frozen Checkpointed Models:** `model_versions` is strictly read-only for authenticated users, separating inference from offline model training.
 
 ---
 
@@ -27,147 +30,257 @@ supabase/
 ├── migrations/
 │   ├── 001_create_participants.sql      # Pseudonymized participant registry
 │   ├── 002_create_consent_records.sql   # Dynamic informed consent audit log
-│   ├── 003_create_typing_sessions.sql   # Keystroke timing dynamics (no text)
-│   ├── 004_create_voice_sessions.sql    # Acoustic voice features (no raw audio)
-│   ├── 005_create_motor_sessions.sql    # Motor, gait, tapping & tremor features
-│   ├── 006_create_visual_sessions.sql   # Ocular/Visual behavior features (no video)
-│   ├── 007_create_sleep_sessions.sql    # Sleep duration, quality & RBD questionnaire
-│   ├── 008_create_daily_features.sql    # Standardized daily multimodal feature vectors
-│   ├── 009_create_personal_baselines.sql# 14-day calibration & rolling baselines
-│   ├── 010_create_daily_deviations.sql  # Normalized statistical deviations (z-scores)
-│   ├── 011_create_mpf_predictions.sql   # Adapter inference risk-screening audit log
-│   ├── 012_create_model_versions.sql    # Checkpointed model weights & schema versions
-│   └── 013_create_rls_policies.sql      # Row Level Security & storage policies
+│   ├── 003_create_session_tables.sql    # Typing, Voice, Motor, Visual, and Sleep sessions
+│   ├── 004_create_daily_features.sql    # Daily multimodal feature aggregation vectors
+│   ├── 005_create_personal_baselines.sql# 14-day calibration & rolling adaptive baselines
+│   ├── 006_create_daily_deviations.sql  # Statistical z-score deviations from baseline
+│   ├── 007_create_mpf_predictions.sql   # Research risk screening inference audit trail
+│   ├── 008_create_model_versions.sql    # Checkpointed frozen model registry
+│   └── 009_create_rls_policies.sql      # Complete RLS enforcement across all 12 tables
 ├── seed/
-│   └── seed_model_versions.sql          # Seed verified model weights & configurations
-├── tests/
-│   ├── auth_service.py                  # Supabase Auth, JWT & session implementation
-│   ├── test_auth_flow.py                # Authentication, token rotation & deletion tests
-│   ├── test_rls_policies.py             # RLS policies 1-7 & storage isolation tests
-│   └── test_schema_integrity.py         # Table structures, constraints & types tests
-└── README.md                            # Documentation and architecture guide
+│   └── seed_model_versions.sql          # Seed records for frozen MPF model checkpoints
+└── README.md                            # Documentation and schema guide
 ```
 
 ---
 
-## 3. Relational Schema Reference
+## 3. Database Schema (12 Tables)
 
 ### 3.1 `participants`
-Pseudonymized participant registry. Primary key is a UUIDv4 matching `auth.uid()`.
-- `id` (`UUID PRIMARY KEY DEFAULT gen_random_uuid()`): Unique participant identifier.
-- `created_at` (`TIMESTAMPTZ NOT NULL DEFAULT NOW()`): Participant enrollment timestamp.
-- `consent_version` (`TEXT NOT NULL DEFAULT '1.0.0'`): Active consent protocol version.
-- `consent_timestamp` (`TIMESTAMPTZ NOT NULL DEFAULT NOW()`): Consent execution timestamp.
-- `app_version` (`TEXT NOT NULL DEFAULT '1.0.0'`): Mobile application release version.
-- `model_version` (`TEXT NOT NULL DEFAULT '1.0.0'`): MPF model version active at enrollment.
-- `baseline_status` (`baseline_status_enum NOT NULL DEFAULT 'collecting'`): `'collecting'`, `'established'`, or `'adaptive'`.
-- `pseudonymous_id` (`TEXT UNIQUE NOT NULL`): Cryptographic pseudonymous study code.
+Pseudonymized participant registry. Primary key matches `auth.uid()`.
+- `id` (UUID, PK, default `gen_random_uuid()`): Participant identifier.
+- `created_at` (TIMESTAMPTZ, default `now()`): Account creation timestamp.
+- `email` (TEXT, UNIQUE): Participant email for authentication.
+- `pseudonymous_id` (TEXT, UNIQUE): Cryptographic pseudonym.
+- `consent_version` (TEXT): Active informed consent version.
+- `consent_timestamp` (TIMESTAMPTZ): Consent timestamp.
+- `app_version` (TEXT): Client application version.
+- `model_version` (TEXT): Model version assigned.
+- `baseline_status` (TEXT): Status (`collecting`, `established`, `adaptive`).
+- `is_active` (BOOLEAN, default `true`): Account activity status.
 
 ### 3.2 `consent_records`
-Audit trail of informed consent grants and revocations.
-- `id` (`UUID PRIMARY KEY`): Record UUID.
-- `participant_id` (`UUID REFERENCES participants(id) ON DELETE CASCADE`): Participant FK.
-- `consent_type` (`TEXT CHECK (consent_type IN ('data_collection', 'audio_storage', 'research_export', 'deletion'))`): Consent category.
-- `consent_version` (`TEXT NOT NULL`): Version string of consent form presented.
-- `granted` (`BOOLEAN NOT NULL DEFAULT TRUE`): Consent grant state.
-- `timestamp` (`TIMESTAMPTZ NOT NULL DEFAULT NOW()`): Grant timestamp.
-- `revoked_at` (`TIMESTAMPTZ`): Optional revocation timestamp.
+Audit trail of all consent grants and revocations.
+- `id` (UUID, PK, default `gen_random_uuid()`): Record identifier.
+- `participant_id` (UUID, FK → `participants.id` ON DELETE CASCADE).
+- `consent_type` (TEXT: `data_collection`, `audio_storage`, `research_export`).
+- `consent_version` (TEXT): Version of consent document.
+- `granted` (BOOLEAN): Consent granted state.
+- `timestamp` (TIMESTAMPTZ, default `now()`): Action timestamp.
+- `revoked_at` (TIMESTAMPTZ, nullable): Revocation timestamp.
 
-### 3.3 Active Modality Session Tables
-All session tables enforce unique `session_id` idempotency keys generated on mobile devices to prevent duplicate uploads during offline-sync retries.
+### 3.3 `typing_sessions`
+Keystroke timing dynamics (zero text or key codes).
+- `id` (UUID, PK): Session record ID.
+- `participant_id` (UUID, FK → `participants.id`).
+- `session_id` (TEXT, UNIQUE): Client idempotency key.
+- `timestamp` (TIMESTAMPTZ): Session completion time.
+- `task_type` (TEXT): Typing test protocol.
+- `duration` (NUMERIC): Task duration (seconds).
+- `typing_speed` (NUMERIC): Keystrokes per second.
+- `mean_inter_key_interval` (NUMERIC): Mean IKI (ms).
+- `std_inter_key_interval` (NUMERIC): Standard deviation of IKI.
+- `pause_rate` (NUMERIC): Pauses per second.
+- `correction_rate` (NUMERIC): Backspace/delete rate.
+- `rhythm_variability` (NUMERIC): Coefficient of variation.
+- `quality_score` (NUMERIC, 0.0–1.0): Signal quality metric.
+- `feature_version` (TEXT): Extraction pipeline version.
+- `synced` (BOOLEAN, default `false`): Sync status flag.
 
-- **`typing_sessions`**: Keystroke timing dynamics (`typing_speed`, `mean_inter_key_interval`, `std_inter_key_interval`, `pause_rate`, `correction_rate`, `rhythm_variability`, `quality_score`). Keystroke text is never recorded.
-- **`voice_sessions`**: On-device extracted acoustic features (`signal_quality`, `jitter`, `shimmer`, `hnr`, `pitch_mean`, `pitch_std`, `mfcc_features` [13-40 coeffs], `spectral_features`, `quality_score`). Raw audio is discarded locally.
-- **`motor_sessions`**: Kinematic motor and gait metrics (`cadence`, `stride_variability`, `movement_variability`, `tapping_rate`, `tapping_interval_variability`, `tremor_frequency`, `tremor_amplitude`, `quality_score`).
-- **`visual_sessions`**: Ocular/Visual Behavior Module metrics (`blink_rate`, `blink_interval_variability`, `gaze_stability`, `reaction_time`, `quality_score`). Front-camera behavioral task only; **not retinal imaging**.
-- **`sleep_sessions`**: Subjective sleep metrics and prodromal REM sleep behavior disorder questionnaire items (`sleep_duration`, `sleep_quality` [1-5], `unusual_movement_self_report`, `daytime_sleepiness` [1-5], `score`).
+### 3.4 `voice_sessions`
+Acoustic feature vectors extracted on-device (zero raw audio).
+- `id` (UUID, PK): Session record ID.
+- `participant_id` (UUID, FK → `participants.id`).
+- `session_id` (TEXT, UNIQUE): Client idempotency key.
+- `timestamp` (TIMESTAMPTZ): Recording timestamp.
+- `task_type` (TEXT): Sustained vowel or reading task.
+- `duration` (NUMERIC): Audio length (seconds).
+- `signal_quality` (NUMERIC): SNR / audio signal quality.
+- `jitter` (NUMERIC): Local pitch perturbation.
+- `shimmer` (NUMERIC): Local amplitude perturbation.
+- `hnr` (NUMERIC): Harmonics-to-noise ratio (dB).
+- `pitch_mean` (NUMERIC): Fundamental frequency mean (Hz).
+- `pitch_std` (NUMERIC): Fundamental frequency standard deviation.
+- `mfcc_features` (JSONB): 13 Mel-frequency cepstral coefficients.
+- `quality_score` (NUMERIC, 0.0–1.0): Voice quality index.
+- `feature_version` (TEXT): Acoustic extractor version.
+- `synced` (BOOLEAN, default `false`): Sync status flag.
 
-### 3.4 Longitudinal Aggregation & Inference Tables
-- **`daily_features`**: Daily standardized packaging combining typing, voice, motor, visual, and sleep feature sets with quality scores (`UNIQUE(participant_id, date)`).
-- **`personal_baselines`**: Normative individual baselines computed from 14-day calibration (`modality`, `feature_name`, `baseline_mean`, `baseline_median`, `baseline_std`, `baseline_mad`, `lower_bound`, `upper_bound`, `sample_count`).
-- **`daily_deviations`**: Statistical deviation and trend tracking relative to personal baseline (`deviation_score`, `trend_score`, `quality_score`, `seven_day_average`, `seven_day_variability`, `fourteen_day_trend`, `sustained_deviation_count`, `missingness_ratio`, `seven_day_quality`, `deviation_classification`, `trend_classification`).
-- **`mpf_predictions`**: Audit log of MPF risk-screening model inference outputs (`risk_score` [0-1], `available_modalities`, `missing_modalities`, `prediction_metadata`).
-- **`model_versions`**: Checkpointed model weights, active status, and validation metrics (`UNIQUE(model_name, version)`). Read-only for participants.
+### 3.5 `motor_sessions`
+Motor, gait, tapping, and postural tremor kinematics.
+- `id` (UUID, PK): Record ID.
+- `participant_id` (UUID, FK → `participants.id`).
+- `session_id` (TEXT, UNIQUE): Client idempotency key.
+- `timestamp` (TIMESTAMPTZ): Session timestamp.
+- `task_type` (TEXT: `walking`, `tapping`, `tremor_hold`).
+- `duration` (NUMERIC): Duration in seconds.
+- `cadence` (NUMERIC, nullable): Steps per minute.
+- `stride_variability` (NUMERIC, nullable): Gait irregularity.
+- `tapping_rate` (NUMERIC, nullable): Taps per second.
+- `tapping_interval_variability` (NUMERIC, nullable): Tapping variance.
+- `tremor_frequency` (NUMERIC, nullable): Peak frequency (Hz).
+- `tremor_amplitude` (NUMERIC, nullable): Tremor displacement.
+- `quality_score` (NUMERIC, 0.0–1.0): Sensor quality score.
+- `feature_version` (TEXT): Feature version tag.
+- `synced` (BOOLEAN, default `false`): Sync flag.
+
+### 3.6 `visual_sessions`
+Ocular and visual behavior dynamics (explicitly NOT retinal imaging).
+- `id` (UUID, PK): Record ID.
+- `participant_id` (UUID, FK → `participants.id`).
+- `session_id` (TEXT, UNIQUE): Client idempotency key.
+- `timestamp` (TIMESTAMPTZ): Session timestamp.
+- `task_type` (TEXT: `tracking`, `blink`, `reaction`).
+- `duration` (NUMERIC): Duration in seconds.
+- `blink_rate` (NUMERIC, nullable): Blinks per minute.
+- `blink_interval_variability` (NUMERIC, nullable): Inter-blink interval variance.
+- `gaze_stability` (NUMERIC, nullable): Fixation stability score.
+- `reaction_time` (NUMERIC, nullable): Saccadic latency (ms).
+- `quality_score` (NUMERIC, 0.0–1.0): Tracking quality index.
+- `feature_version` (TEXT): Feature version tag.
+- `synced` (BOOLEAN, default `false`): Sync flag.
+
+### 3.7 `sleep_sessions`
+Self-reported and passive sleep dynamics and RBD questionnaire.
+- `id` (UUID, PK): Record ID.
+- `participant_id` (UUID, FK → `participants.id`).
+- `session_id` (TEXT, UNIQUE): Client idempotency key.
+- `timestamp` (TIMESTAMPTZ): Log timestamp.
+- `sleep_duration` (NUMERIC): Total sleep time (hours).
+- `sleep_quality` (NUMERIC, 1–5): Likert sleep quality rating.
+- `unusual_movement_self_report` (BOOLEAN): RBD dream-enactment report.
+- `daytime_sleepiness` (NUMERIC, 1–5): Epworth-aligned sleepiness score.
+- `questionnaire_version` (TEXT): Questionnaire schema version.
+- `score` (NUMERIC): Computed sleep composite score.
+- `synced` (BOOLEAN, default `false`): Sync flag.
+
+### 3.8 `daily_features`
+Standardized daily multimodal feature vectors.
+- `id` (UUID, PK): Record ID.
+- `participant_id` (UUID, FK → `participants.id`).
+- `date` (DATE): Assessment calendar date.
+- `typing_features` (JSONB): Daily aggregated typing metrics.
+- `voice_features` (JSONB): Daily aggregated voice metrics.
+- `motor_features` (JSONB): Daily aggregated motor metrics.
+- `visual_features` (JSONB): Daily aggregated visual behavior metrics.
+- `sleep_features` (JSONB): Daily aggregated sleep metrics.
+- `data_quality` (JSONB): Multimodal quality validation report.
+- `feature_version` (TEXT): Aggregation pipeline version.
+- `created_at` (TIMESTAMPTZ): Record timestamp.
+- `UNIQUE(participant_id, date)`: Enforces one summary per participant per day.
+
+### 3.9 `personal_baselines`
+Personalized normative baselines computed over a minimum 14-day calibration window.
+- `id` (UUID, PK): Record ID.
+- `participant_id` (UUID, FK → `participants.id`).
+- `modality` (TEXT): Feature modality.
+- `feature_name` (TEXT): Digital biomarker feature name.
+- `baseline_mean` (NUMERIC): Robust baseline mean.
+- `baseline_median` (NUMERIC): Robust baseline median.
+- `baseline_std` (NUMERIC): Baseline standard deviation.
+- `baseline_mad` (NUMERIC): Median Absolute Deviation.
+- `lower_bound` (NUMERIC): Normal lower control bound.
+- `upper_bound` (NUMERIC): Normal upper control bound.
+- `sample_count` (INTEGER): Number of calibrated valid daily sessions (≥ 1).
+- `baseline_start_date` (DATE): Calibration window start.
+- `baseline_end_date` (DATE): Calibration window end.
+- `baseline_version` (TEXT): Baseline algorithm version.
+- `algorithm_version` (TEXT): Calibration engine version.
+- `created_at` (TIMESTAMPTZ): Baseline creation timestamp.
+- `updated_at` (TIMESTAMPTZ): Last update timestamp.
+- `UNIQUE(participant_id, modality, feature_name)`: Enforces single baseline per feature.
+
+### 3.10 `daily_deviations`
+Statistical deviation scores comparing daily features to established personal baselines.
+- `id` (UUID, PK): Record ID.
+- `participant_id` (UUID, FK → `participants.id`).
+- `date` (DATE): Calendar date.
+- `modality` (TEXT): Biomarker modality.
+- `feature_name` (TEXT): Feature name.
+- `value` (NUMERIC): Current observed value.
+- `baseline_value` (NUMERIC): Established personal baseline value.
+- `deviation_score` (NUMERIC): Robust z-score deviation `(value - median) / (1.4826 * MAD)`.
+- `trend_score` (NUMERIC): Multi-day longitudinal trend slope.
+- `quality_score` (NUMERIC, 0.0–1.0): Data reliability gate score.
+- `algorithm_version` (TEXT): Deviation computation version.
+- `created_at` (TIMESTAMPTZ): Record creation timestamp.
+
+### 3.11 `mpf_predictions`
+Multimodal prodromal fusion screening risk audit log.
+- `id` (UUID, PK): Record ID.
+- `participant_id` (UUID, FK → `participants.id`).
+- `timestamp` (TIMESTAMPTZ): Inference timestamp.
+- `model_version` (TEXT): Model version used.
+- `input_feature_version` (TEXT): Schema version of input features.
+- `available_modalities` (TEXT[]): List of present modalities.
+- `missing_modalities` (TEXT[]): List of absent modalities handled via gating/imputation.
+- `risk_score` (NUMERIC, 0.0–1.0): Bounded risk probability.
+- `prediction_metadata` (JSONB): Explainability attribution, SHAP summary, disclaimer.
+- `created_at` (TIMESTAMPTZ): Audit log timestamp.
+
+### 3.12 `model_versions`
+Frozen checkpoint registry maintaining full provenance.
+- `id` (UUID, PK): Model record ID.
+- `model_name` (TEXT): Name of model (`gated_multimodal_fusion`, etc.).
+- `version` (TEXT): Semantic model version (`v1.0.0`).
+- `created_at` (TIMESTAMPTZ): Checkpoint registration timestamp.
+- `feature_schema_version` (TEXT): Expected input schema version.
+- `training_dataset_version` (TEXT): Provenance dataset version.
+- `metrics` (JSONB): Validation metrics (AUROC, sensitivity, Brier score).
+- `active` (BOOLEAN): Whether model is active for inference.
 
 ---
 
-## 4. Authentication Architecture
+## 4. Row Level Security (RLS) Policies
 
-Supabase Auth provides the identity layer:
-1. **Registration & Passwords:** Email and password registration is backed by PBKDF2-HMAC-SHA256 with cryptographically generated 16-byte random salts. Plain-text passwords are never stored in memory or persistent storage.
-2. **Pseudonymous Mapping:** At registration, a cryptographically derived pseudonymous identifier (`ps_<sha256>`) is issued.
-3. **JWT Tokens:** Authenticated clients receive signed JWT access tokens containing standard claims (`sub = user_id`, `role = authenticated`, `aud = authenticated`, `exp`, `iat`). Tokens expire within 1 hour.
-4. **Session Lifecycle & Refresh:** Long-lived refresh tokens (30 days) use token rotation. Each refresh generates a new access token and invalidates the previous refresh token.
-5. **Password Reset:** Generates a cryptographically random, single-use reset token with a 15-minute expiration. Upon completion, all active sessions are revoked.
-6. **Account Deletion (GDPR "Right to Erasure"):** Cascading deletion purges the participant record and all associated records across all 11 child tables (`ON DELETE CASCADE`), ensuring zero residual or orphaned data.
+All 12 tables have Row Level Security enabled (`ALTER TABLE ... ENABLE ROW LEVEL SECURITY`).
 
----
-
-## 5. Row Level Security (RLS) Implementation
-
-Row Level Security is enabled across all 12 tables. The following policies are strictly enforced:
-
-| Policy | Scope | Target Tables | Rule / Expression |
+| Policy | Target Tables | Operation | Rule Definition |
 |---|---|---|---|
-| **Policy 1** | Read Own Data | `participants` & all feature tables | `SELECT USING (auth.uid() = participant_id)` (or `id` on `participants`) |
-| **Policy 2** | Insert Own Data | `participants` & all feature tables | `INSERT WITH CHECK (auth.uid() = participant_id)` |
-| **Policy 3** | Update Own Data | `participants` & all feature tables | `UPDATE USING/WITH CHECK (auth.uid() = participant_id)` |
-| **Policy 4** | Delete Own Data | `participants` & all feature tables | `DELETE USING (auth.uid() = participant_id)` |
-| **Policy 5** | Cross-Participant Isolation | All tables | Access blocked if `auth.uid() != participant_id` |
-| **Policy 6** | Research Export | `mpf_predictions`, exports | Service-role key bypasses RLS; participants cannot export cross-cohort data |
-| **Policy 7** | Model Versions Read-Only | `model_versions` | `SELECT USING (true)` for authenticated users; modifications restricted to service-role |
+| **Users can view own data** | `participants` | SELECT | `USING (auth.uid() = id)` |
+| **Users can insert own data** | `participants` | INSERT | `WITH CHECK (auth.uid() = id)` |
+| **Users can update own data** | `participants` | UPDATE | `USING (auth.uid() = id)` |
+| **Users can delete own data** | `participants` | DELETE | `USING (auth.uid() = id)` |
+| **Users can view own data** | All 10 user data tables | SELECT | `USING (auth.uid() = participant_id)` |
+| **Users can insert own data** | All 10 user data tables | INSERT | `WITH CHECK (auth.uid() = participant_id)` |
+| **Users can update own data** | All 10 user data tables | UPDATE | `USING (auth.uid() = participant_id)` |
+| **Users can delete own data** | All 10 user data tables | DELETE | `USING (auth.uid() = participant_id)` |
+| **Anyone can read model versions**| `model_versions` | SELECT | `USING (auth.role() = 'authenticated')` |
+
+Cross-participant access is strictly blocked at the PostgreSQL engine level.
 
 ---
 
-## 6. Storage Configuration
+## 5. Performance Indexes
 
-Supabase Storage is configured with two private buckets:
-
-1. **`consent-documents` (Participant-Scoped):**
-   - **Access:** Authenticated participants can read and write files exclusively in their own folder (`(storage.foldername(name))[1] = auth.uid()::text`).
-   - **MIME Types:** `application/pdf`, `image/png`, `image/jpeg`.
-   - **Max File Size:** 10 MB.
-2. **`research-exports` (Service-Role Only):**
-   - **Access:** Authenticated and anonymous client access is prohibited (`no public policies`). Only backend pipelines utilizing the `service_role` key can read/write research export bundles.
-   - **MIME Types:** `application/json`, `application/parquet`, `text/csv`.
-   - **Max File Size:** 500 MB.
-3. **Raw Sensor Stream Restriction:**
-   - Supabase Storage rejects raw audio files, raw camera videos, or raw continuous sensor dumps by default. Feature extraction occurs strictly on the mobile client.
-
----
-
-## 7. Automated Testing & Verification
-
-The test suite validates schema integrity, foreign keys, unique idempotency constraints, RLS policies, and authentication flows.
-
-### Running Tests
-
-```bash
-python -m pytest supabase/tests -v
+```sql
+CREATE INDEX idx_typing_participant ON typing_sessions(participant_id, timestamp);
+CREATE INDEX idx_voice_participant ON voice_sessions(participant_id, timestamp);
+CREATE INDEX idx_motor_participant ON motor_sessions(participant_id, timestamp);
+CREATE INDEX idx_visual_participant ON visual_sessions(participant_id, timestamp);
+CREATE INDEX idx_sleep_participant ON sleep_sessions(participant_id, timestamp);
+CREATE INDEX idx_daily_features_participant ON daily_features(participant_id, date);
+CREATE INDEX idx_baselines_participant ON personal_baselines(participant_id, modality);
+CREATE INDEX idx_deviations_participant ON daily_deviations(participant_id, date);
+CREATE INDEX idx_predictions_participant ON mpf_predictions(participant_id, timestamp);
 ```
 
-### Test Coverage Summary
+---
 
-- `test_schema_integrity.py`:
-  - Presence and syntax of all 13 migration files.
-  - Presence of seed file `seed_model_versions.sql`.
-  - Table existence and column completeness for all 12 tables.
-  - Foreign key constraints and cascading deletions (`ON DELETE CASCADE`).
-  - Unique idempotency key enforcement on `session_id`.
-  - Daily features unique constraint on `(participant_id, date)`.
-  - JSON/JSONB feature vector serialization and parsing.
-  - Value boundary checks on `quality_score`, `risk_score`, and `sleep_quality`.
-- `test_rls_policies.py`:
-  - Participant self-access (read, insert, update, delete own data).
-  - Cross-participant access prevention (zero leakage between Participant A and B).
-  - Unauthenticated access rejection across all tables.
-  - Model versions read-only enforcement for authenticated participants.
-  - Service-role privileges for research export and model updates.
-  - Storage bucket folder scoping for consent documents.
-- `test_auth_flow.py`:
-  - Password hashing security (PBKDF2-HMAC-SHA256, no plain text).
-  - Pseudonymous ID generation.
-  - JWT token issuance, signature verification, expiry, and tampering detection.
-  - Refresh token rotation and session invalidation on logout.
-  - One-time password reset token life-cycle and revocation.
-  - GDPR cascading account deletion verifying zero orphaned records.
+## 6. Python Client Wrapper
+
+Located at `src/mobile/supabase_client.py`:
+
+```python
+from src.mobile.supabase_client import init_supabase, get_client, test_connection
+
+# Initialize client
+client = init_supabase()
+
+# Retrieve cached client singleton
+client = get_client()
+
+# Check connectivity
+is_healthy = test_connection(client)
+print(f"Supabase connection status: {is_healthy}")
+```

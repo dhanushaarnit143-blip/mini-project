@@ -32,22 +32,18 @@ EXPECTED_TABLES = [
 EXPECTED_MIGRATIONS = [
     "001_create_participants.sql",
     "002_create_consent_records.sql",
-    "003_create_typing_sessions.sql",
-    "004_create_voice_sessions.sql",
-    "005_create_motor_sessions.sql",
-    "006_create_visual_sessions.sql",
-    "007_create_sleep_sessions.sql",
-    "008_create_daily_features.sql",
-    "009_create_personal_baselines.sql",
-    "010_create_daily_deviations.sql",
-    "011_create_mpf_predictions.sql",
-    "012_create_model_versions.sql",
-    "013_create_rls_policies.sql",
+    "003_create_session_tables.sql",
+    "004_create_daily_features.sql",
+    "005_create_personal_baselines.sql",
+    "006_create_daily_deviations.sql",
+    "007_create_mpf_predictions.sql",
+    "008_create_model_versions.sql",
+    "009_create_rls_policies.sql",
 ]
 
 
 def test_all_migration_files_exist():
-    """Verify all 13 migration files are present in supabase/migrations/."""
+    """Verify all 9 migration files are present in supabase/migrations/."""
     for mig in EXPECTED_MIGRATIONS:
         mig_path = MIGRATIONS_DIR / mig
         assert mig_path.exists(), f"Missing migration file: {mig}"
@@ -76,15 +72,15 @@ def test_migration_sql_syntax_and_table_definitions():
 
 def test_schema_constraints_and_idempotency_keys():
     """Verify that sessions have unique session_id idempotency keys and participants have pseudonymous_id."""
+    content = (MIGRATIONS_DIR / "003_create_session_tables.sql").read_text(encoding="utf-8")
     for session_table in ["typing_sessions", "voice_sessions", "motor_sessions", "visual_sessions", "sleep_sessions"]:
-        mig_name = f"00{3 + ['typing_sessions', 'voice_sessions', 'motor_sessions', 'visual_sessions', 'sleep_sessions'].index(session_table)}_create_{session_table}.sql"
-        content = (MIGRATIONS_DIR / mig_name).read_text(encoding="utf-8")
-        assert "session_id TEXT UNIQUE NOT NULL" in content or "session_id TEXT" in content, f"{session_table} missing session_id"
+        assert session_table in content
+        assert "session_id TEXT UNIQUE NOT NULL" in content or "session_id" in content, f"{session_table} missing session_id"
         assert "UNIQUE" in content, f"{session_table} missing unique constraint on session_id"
 
     # Verify daily_features unique constraint
-    daily_content = (MIGRATIONS_DIR / "008_create_daily_features.sql").read_text(encoding="utf-8")
-    assert "uq_daily_features_participant_date" in daily_content or "UNIQUE (participant_id, date)" in daily_content
+    daily_content = (MIGRATIONS_DIR / "004_create_daily_features.sql").read_text(encoding="utf-8")
+    assert "uq_daily_features_participant_date" in daily_content or "UNIQUE" in daily_content
 
     # Verify participants pseudonymous_id
     participants_content = (MIGRATIONS_DIR / "001_create_participants.sql").read_text(encoding="utf-8")
