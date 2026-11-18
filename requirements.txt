@@ -25,3 +25,5 @@ opencv-python
 
 # Explainability
 shap
+matplotlib
+seaborn
